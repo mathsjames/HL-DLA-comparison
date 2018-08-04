@@ -1,0 +1,5 @@
+i=$1
+while [ "$i" -le "$2" ]; do
+  ./ClusterHL -g $3 -S $i -s $4
+  i=$(($i + 1))
+done
