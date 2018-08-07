@@ -1,0 +1,4 @@
+for i in {1..100}
+do
+  ./Dimension -r "location/locationN100000S"$i"SIG0.00A0.00" -w "DimH/dimN100000S"$i"SIG0.00A0.00" -n 100000 -p 100000 -s $i
+done

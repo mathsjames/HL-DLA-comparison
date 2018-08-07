@@ -76,6 +76,7 @@ int main(int argc, char** argv) {
   
   double distances[trialnum];
   double _Complex point;
+  int percentdone = 0;
   for(int i=0; i<trialnum; i++) {
     int notfound=1;
     while (notfound) {
@@ -87,6 +88,10 @@ int main(int argc, char** argv) {
 	  }
       }
     distances[i]=setDistance(particles,particleNumber+1,point);
+    if ((100*i)/trialnum>percentdone) {
+      percentdone=(100*i)/trialnum;
+      printf("%d percent done\n",percentdone);
+    }
   }
 
 
