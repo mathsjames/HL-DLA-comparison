@@ -1,7 +1,7 @@
 CFLAGS = -g
-BIN = ../../
+BIN = ./
 CC = gcc
 
 dla:	dla.c maps.o cx.o
 	if(test ! -x ${BIN}) then (mkdir ${BIN}) fi
-	gcc -g dla.c maps.o cx.o -lm -o ${BIN}/dla
+	gcc -g dla.c maps.o cx.o -lm -o ${BIN}/ClusterHL

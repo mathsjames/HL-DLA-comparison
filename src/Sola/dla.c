@@ -96,7 +96,7 @@ char *argv[];
 
 
   fname[0]='\0';
-  strcat(fname,"location");
+  strcat(fname,"location/location");
   finf[0]='\0';
   strcat(fname,fid);
   sprintf(finf, "N%d", ngen);
@@ -113,7 +113,7 @@ char *argv[];
   fclose(file);
   
   fname[0]='\0';
-  strcat(fname,"sizes");
+  strcat(fname,"sizes/sizes");
   finf[0]='\0';
   strcat(fname,fid);
   sprintf(finf, "N%d", ngen);
