@@ -109,7 +109,7 @@ char *argv[];
   strcat(fname,finf);
   
   file=fopen(fname, "w");
-  fwrite(location, sizeof(double _Complex), ngen, file);
+  fwrite(location, sizeof(complex), ngen, file);
   fclose(file);
   
   fname[0]='\0';
@@ -149,7 +149,7 @@ void grow()
   int i;
   for(i=1; i<ngen; i++) {
     if (i%1000==0) {
-      printf("%d percent done\n", i/1000);
+      printf("%d percent done\n", (100*i)/ngen);
     }
     aggregate();  /* writes on file capacity and slit length */
   }
@@ -182,7 +182,8 @@ double finda(t)
 {
   double a, fac, dist, p, q, d, D, del, limd, C, F;
   complex rr, tdel; 
-  rr.x=1.0; rr.y=0;
+  rr.x=1.0+sigma;
+  rr.y=0;
   del=1.000001;
   tdel.x=del*t.x; tdel.y=del*t.y;
   /*approximate derivative*/
