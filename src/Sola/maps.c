@@ -14,7 +14,7 @@ static complex cx_1mi={1.0,-1.0};
 static complex cx_0={0.0,0.0};
 static complex cx_2={2.0,0.0};
 static complex cx_4={4.0,0.0};
-static complex eta={1,0.0};
+extern complex eta;
 static complex cx_half={0.5,0.0};
 
 /* Functions */
@@ -190,11 +190,11 @@ complex f(z,t,a)
      complex z, t;
      double a;
 {
-  complex w, factor1, factor2;
- 
-  factor1=z;
-  factor2=cexp(mult(eta,clog(div(sf(z,t,a),z))));
-  w=mult(factor1,factor2);
+  complex w, loceta;
+  loceta.x=a*(eta.x-1)+1;
+  loceta.y=0;
+  printf("%lf %lf %lf\n",eta.x,loceta.x,loceta.y);
+  w=div(sf(mult(loceta,z),t,a),loceta);
  
   return(w);
 }
@@ -206,16 +206,12 @@ double df(z,t,a)
      complex z, t;
      double a;
 {
-  complex term1, term2, term3, fact1, fact2, rat1, rat2, tz, tz2;
-    double w;
-    fact1=div(f(z,t,a),z);
-    term1=mult(sub(cx_1,eta),fact1);
-    fact2=mult(eta,dersf(z,t,a));
-    term2=mult(fact2,cexp(mult(sub(eta,cx_1),clog(div(sf(z,t,a),z)))));
-    w=cabs(add(term1,term2)); 
-    return(w); 
- 
-
+  complex loceta;
+  double w;
+  loceta.x=a*(eta.x-1)+1;
+  loceta.y=0;
+  w=dsf(mult(loceta,z),t,a); 
+  return(w); 
 }
 
 

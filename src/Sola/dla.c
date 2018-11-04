@@ -34,8 +34,9 @@ complex theta[MAXAGG];
 complex location[MAXAGG];
 double a[MAXAGG];
 static int nagg = 0;    
-static double alpha=ALPHA, spike = SPIKE, sigma = 0.0;
-static int ngen=NGEN;
+static double alpha=ALPHA, spike = SPIKE, sigma = 0.0, sigonspike = 0.5, capacity=1.0;
+static int ngen=NGEN, reg=1;
+complex eta;
 unsigned int state;
 
 /* Functions */
@@ -53,6 +54,8 @@ char *argv[];
   unsigned int seed; /* if seed1 = seed2 then srandom(seed1) = srandom(seed2), i.e. same random sequence */
     
   state=time(NULL); 	/* reset random number generator */
+  eta.x=1.0;
+  eta.y=0.0;
   for(i=1; i<argc; i++)
     {	if(argv[i][0] != '-') usage();
       switch(argv[i][1])
@@ -60,6 +63,11 @@ char *argv[];
 	case 'a':
 	  if(argc <= (i+1)) usage();
 	  sscanf(argv[++i],"%lf",&alpha);  /* %lf = double */
+	  break;
+
+	case 'e':
+	  if(argc <= (i+1)) usage();
+	  sscanf(argv[++i],"%lf",&(eta.x));  /* %lf = double */
 	  break;
 
 	case 'f':  /* reads name of capacity file */
@@ -72,6 +80,11 @@ char *argv[];
 	  sscanf(argv[++i],"%d",&ngen);
 	  break;
 
+	case 'l':  /* Length of first slit */
+	  if(argc <= (i+1)) usage();
+	  sscanf(argv[++i],"%lf",&spike);
+	  break;
+	  
 	case 'S':  /* default: seed = time(NULL) */
 	  if(argc <= (i+1)) usage();
 	  sscanf(argv[++i],"%u",&seed);
@@ -81,6 +94,16 @@ char *argv[];
 	case 's':  /* reads sigma from user, default 0 */
 	  if(argc <= (i+1)) usage();
 	  sscanf(argv[++i],"%lf",&sigma);
+	  break;
+	  
+	case 'r': /* Type of Regularization */
+	  if(argc <= (i+1)) usage();
+	  sscanf(argv[++i],"%d",&reg);
+	  break;
+
+	case 'z': /*sigonspike*/
+	  if(argc <= (i+1)) usage();
+	  sscanf(argv[++i],"%lf",&sigonspike);
 	  break;
 
 	default:
@@ -99,16 +122,54 @@ char *argv[];
   strcat(fname,"location/location");
   finf[0]='\0';
   strcat(fname,fid);
+  if (eta.x>1.000000001) {
+    sprintf(finf, "E%1.2f", eta.x);
+    strcat(fname,finf);
+  }
+  switch (reg)
+    {
+    case 0:
+      sprintf(finf, "NONE");
+      break;
+
+    case 1:
+      sprintf(finf, "SIG%1.3f", sigma);
+      break;
+
+    case 2:
+      sprintf(finf, "EXACT");
+      break;
+
+    case 3:
+      sprintf(finf, "CAP%1.2f",sigonspike);
+      break;
+      
+    case 4:
+      sprintf(finf, "SPD%1.2f",sigonspike);
+      break;
+      
+    case 5:
+      sprintf(finf, "AVG");
+      break;
+
+    case 6:
+      sprintf(finf,"SEC");
+      break;
+    }
+  strcat(fname,finf);
+  sprintf(finf, "L%1.3f", spike);
+  strcat(fname,finf);
+  sprintf(finf, "A%1.2f", alpha);
+  strcat(fname,finf);
   sprintf(finf, "N%d", ngen);
   strcat(fname,finf);
   sprintf(finf, "S%d", seed);
   strcat(fname,finf);
-  sprintf(finf, "SIG%1.2f", sigma);
-  strcat(fname,finf);
-  sprintf(finf, "A%1.2f", alpha);
-  strcat(fname,finf);
   
   file=fopen(fname, "w");
+  if (!file) {
+    printf("error creating location file\n");
+  }
   fwrite(location, sizeof(complex), ngen, file);
   fclose(file);
   
@@ -116,18 +177,74 @@ char *argv[];
   strcat(fname,"sizes/sizes");
   finf[0]='\0';
   strcat(fname,fid);
+  if (eta.x>1.000000001) {
+    sprintf(finf, "E%1.2f", eta.x);
+    strcat(fname,finf);
+  }
+  switch (reg)
+    {
+    case 0:
+      sprintf(finf, "NONE");
+      break;
+
+    case 1:
+      sprintf(finf, "SIG%1.3f", sigma);
+      break;
+
+    case 2:
+      sprintf(finf, "EXACT");
+      break;
+      
+    case 3:
+      sprintf(finf, "CAP%1.2f",sigonspike);
+      break;
+
+    case 4:
+      sprintf(finf, "SPD%1.2f",sigonspike);
+      break;
+
+    case 5:
+      sprintf(finf, "AVG");
+      break;
+      
+    case 6:
+      sprintf(finf,"SEC");
+      break;
+    }
+  strcat(fname,finf);
+  sprintf(finf, "L%1.3f", spike);
+  strcat(fname,finf);
+  sprintf(finf, "A%1.2f", alpha);
+  strcat(fname,finf);
   sprintf(finf, "N%d", ngen);
   strcat(fname,finf);
   sprintf(finf, "S%d", seed);
   strcat(fname,finf);
-  sprintf(finf, "SIG%1.2f", sigma);
-  strcat(fname,finf);
-  sprintf(finf, "A%1.2f", alpha);
-  strcat(fname,finf);
   
   file=fopen(fname, "w");
+  if (!file) {
+    printf("error creating sizes file\n");
+  }
   fwrite(a, sizeof(double), ngen, file);
   fclose(file);
+  /*
+  double ders[10000];
+  complex nt, nz;
+  double ns;
+  for (int k=0;k<10;k++) {
+    nt.x=0;
+    nt.y=(6.14*k)/10;
+    nt=cexp(nt);
+    for (int l=0;l<1000;l++) {
+      nz=nt;
+      nz.x *= 1+l*0.0005;
+      nz.y *= 1+l*0.0005;
+      ders[1000*k+l]=dmap(nz);
+    }
+  }
+  file=fopen("derivativesS","a");
+  fwrite(ders, sizeof(double),10000, file);
+  fclose(file); */
 }
 
 void eprintf(s) char *s; {fprintf(stderr,s);}
@@ -138,8 +255,11 @@ void usage()   /* prints options that should be passed to the main, then exits *
   eprintf("  -a [alpha parameter] (2)\n");
   eprintf("  -f [file identifier] ()\n");
   eprintf("  -g [number of generations] (500)\n");
+  eprintf("  -l [length of first slit] (1.414)\n");
   eprintf("  -s [sigma] (0)\n");
   eprintf("  -S [random seed]\n");
+  eprintf("  -r [regularization (0=none 1=sigma 2=exact 3=cap 4=sigpropd)] (1)\n");
+  eprintf("  -z [sigonspike] (0.5)\n");
   exit(0);
 }
 
@@ -169,6 +289,7 @@ void aggregate()
   midpoint.x=theta[nagg].x*scale;
   midpoint.y=theta[nagg].y*scale;
   location[nagg]=map(midpoint);
+  capacity*=capf(a[nagg]);
   nagg++;  /* nagg is a global variable */
 }
 
@@ -180,22 +301,132 @@ void aggregate()
 double finda(t)
      complex t;
 {
-  double a, fac, dist, p, q, d, D, del, limd, C, F;
-  complex rr, tdel; 
-  rr.x=1.0+sigma;
+  double d, dr, dl, dn, vr, vl, vn, D1, D2;
+  complex rr, zeropoint, point;
   rr.y=0;
-  del=1.000001;
-  tdel.x=del*t.x; tdel.y=del*t.y;
-  /*approximate derivative*/
-  /*D=cabs(div(sub(map(mult(rr,tdel)),map(mult(rr,t))), sub(mult(rr,tdel),mult(rr,t))));
-    d=spike/pow(D, alpha/2);*/
 
-  /*Makarov-type particles*/
-  /*limd=2.72;
-    d=limd/sqrt((nagg+1));*/
+  switch (reg)
+    {
+    case 0:
+      d=spike;
+      break;
 
-  /*exact derivative*/  
-  d=spike/pow(dmap(mult(rr,t)), alpha/2);
+    case 1:
+      /*exact derivative for regularized model*/
+      rr.x=1.0+sigma;
+      d=spike/pow(dmap(mult(rr,t)), alpha/2);
+      break;
+
+    case 2:
+      /*make displacement exact*/
+      dl=0;
+      dr=1;
+      vl=0;
+      zeropoint=map(t);
+      rr.x=1+dr;
+      point=map(mult(rr,t));
+      vr=cabs(sub(zeropoint,point));
+      while (vr<spike) {
+	dl=dr;
+	dr=2*dr;
+	rr.x=1+dr;
+	vl=vr;
+	point=map(mult(rr,t));
+	vr=cabs(sub(zeropoint,point));
+      }
+      printf("Found Upper Bound\n");
+      printf("%lf %lf\n",zeropoint.x,zeropoint.y);
+      dn=dr;
+      vn=vr;
+      while (vn-spike>0.000001 || vn-spike<-0.000001) {
+	dn=(dr*(spike-vl)+dl*(vr-spike))/(vr-vl);
+	rr.x=1+dn;
+	point=map(mult(rr,t));
+	vn=cabs(sub(zeropoint,point));
+	if (vn>spike) {
+	  dr=dn;
+	  vr=vn;
+	} else {
+	  dl=dn;
+	  vl=vn;
+	}
+	printf("%lf %lf %lf %lf\n",dn,vn,point.x,point.y);
+	printf("%lf %lf %lf %lf\n",dl,dr,vl,vr);
+      }
+      d=dn;
+      break;
+
+    case 3:
+      /*choose sigma from capacity*/
+      sigma=(spike*sigonspike/pow(capacity,0.333));
+      rr.x=1.0+sigma;
+      d=spike*pow(capacity,alpha/2-1)/pow(dmap(mult(rr,t)),alpha/2);
+      //printf("cap %f, sig %f, d %f\n",capacity,sigma,d);
+      break;
+
+    case 4:
+      /*make sigma=d exactly */
+      dl=0;
+      dr=1;
+      vl=0;
+      rr.x=1+dr;
+      vr=dr*dmap(mult(rr,t));
+      while (vr<sigonspike*spike) {
+	dl=dr;
+	dr=2*dr;
+	rr.x=1+dr;
+	vl=vr;
+	vr=dr*dmap(mult(rr,t));
+      }
+      dn=dr;
+      vn=vr;
+      while (vn-sigonspike*spike>0.000001 || vn-sigonspike*spike<-0.000001) {
+	dn=(dr*(sigonspike*spike-vl)+dl*(vr-sigonspike*spike))/(vr-vl);
+	rr.x=1+dn;
+	vn=dn*dmap(mult(rr,t));
+	if (vn>sigonspike*spike) {
+	  dr=dn;
+	  vr=vn;
+	} else {
+	  dl=dn;
+	  vl=vn;
+	}
+      }
+      d=dn;
+      break;
+
+    case 5:
+      /* geometric average of both extremes*/
+      d=sqrt(dmap(t)*capacity);
+      //if(capacity>d) {
+      //	d=capacity;
+      //}
+      d=spike/pow(d, alpha/2);
+      break;
+
+    case 6:
+      /*second order taylor*/
+      rr.y=1.000001;
+      D1=dmap(t);
+      D2=(rr.y-1)*(dmap(mult(t,rr))-D1);
+      if (D2<-D1*D1/(2*spike)) {
+	printf("cut on %d \n",nagg);
+	d=2*spike/D1;
+      } else {
+
+	if (D2<0.0000000000001) {
+	  if (D2>-0.000001/D1) {
+	    d=spike/D1;
+	  } else {
+	    d=-D1/D2-sqrt(D1*D1/(D2*D2)+2*spike/D2);
+	  }
+	} else {
+	  d=-D1/D2+sqrt(D1*D1/(D2*D2)+2*spike/D2);
+	}
+      }
+      printf("%d %f %f %f\n",nagg,d,D1,D2);
+      break;
+    }
   
   return(d);
 }
@@ -220,7 +451,7 @@ double dmap(z)
   d = 1;
   for(i=nagg-1; i>=0; i--) {
     d *= df(z,theta[i],a[i]);
-  z = f(z,theta[i],a[i]);
+    z = f(z,theta[i],a[i]);
   }
   return(d);
 }
