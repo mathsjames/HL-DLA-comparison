@@ -1,4 +1,4 @@
-for i in {1..100}
+for i in {7..10}
 do
-  ./Dimension -r "cluster/Cluster"$i -w "DimB/Dim"$i -n 100000 -p 100000 -s $i
+  ./Dimension -r "cluster/Cluster"$i -w "DimB/Dim"$i -n 100000 -p 100000 -s $i &
 done

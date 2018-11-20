@@ -1,5 +1,6 @@
 i=$1
 while [ "$i" -le "$2" ]; do
-  ./ClusterHL -g $3 -S $i -s $4
+  sig=$(echo "$4 * $i" | bc)
+  ./ClusterHL -g $3 -S $i -r 1 -p 2
   i=$(($i + 1))
 done

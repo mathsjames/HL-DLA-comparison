@@ -14,7 +14,7 @@
 //#include <stdlib.h> 
 #define PI 3.14159265358979
 
-#define ALPHA 0.00
+#define ALPHA 2.00
 #define SPIKERR 0.01
 #define SPIKE 1.41421
 #define MAXAGG 100000
@@ -24,6 +24,9 @@
 static char fname[90];
 static char finf[80];
 static char fid[70];
+static char ffinal[100];
+
+static complex cx_1={1.0,0.0};
 
 
 
@@ -33,10 +36,12 @@ static char fid[70];
 complex theta[MAXAGG];
 complex location[MAXAGG];
 double a[MAXAGG];
+double actualsize[MAXAGG];
 static int nagg = 0;    
 static double alpha=ALPHA, spike = SPIKE, sigma = 0.0, sigonspike = 0.5, capacity=1.0;
 static int ngen=NGEN, reg=1;
 complex eta;
+unsigned int particlechoice=1;
 unsigned int state;
 
 /* Functions */
@@ -84,6 +89,11 @@ char *argv[];
 	  if(argc <= (i+1)) usage();
 	  sscanf(argv[++i],"%lf",&spike);
 	  break;
+
+	case 'p':  /* default: 1 */
+	  if(argc <= (i+1)) usage();
+	  sscanf(argv[++i],"%u",&particlechoice);
+	  break;
 	  
 	case 'S':  /* default: seed = time(NULL) */
 	  if(argc <= (i+1)) usage();
@@ -115,15 +125,11 @@ char *argv[];
   fprintf(stderr,"%d generations complete.\n",ngen);
   FILE *file;
   
-
-
-
   fname[0]='\0';
-  strcat(fname,"location/location");
   finf[0]='\0';
   strcat(fname,fid);
-  if (eta.x>1.000000001) {
-    sprintf(finf, "E%1.2f", eta.x);
+  if (particlechoice>1) {
+    sprintf(finf, "P%u", particlechoice);
     strcat(fname,finf);
   }
   switch (reg)
@@ -139,19 +145,19 @@ char *argv[];
     case 2:
       sprintf(finf, "EXACT");
       break;
-
+      
     case 3:
       sprintf(finf, "CAP%1.2f",sigonspike);
       break;
-      
+
     case 4:
       sprintf(finf, "SPD%1.2f",sigonspike);
       break;
-      
+
     case 5:
       sprintf(finf, "AVG");
       break;
-
+      
     case 6:
       sprintf(finf,"SEC");
       break;
@@ -165,75 +171,49 @@ char *argv[];
   strcat(fname,finf);
   sprintf(finf, "S%d", seed);
   strcat(fname,finf);
+
+
+  ffinal[0]='\0';
+  strcat(ffinal,"location/location");
+  strcat(ffinal,fname);
   
-  file=fopen(fname, "w");
+  file=fopen(ffinal, "w");
   if (!file) {
     printf("error creating location file\n");
   }
   fwrite(location, sizeof(complex), ngen, file);
   fclose(file);
   
-  fname[0]='\0';
-  strcat(fname,"sizes/sizes");
-  finf[0]='\0';
-  strcat(fname,fid);
-  if (eta.x>1.000000001) {
-    sprintf(finf, "E%1.2f", eta.x);
-    strcat(fname,finf);
+  /*
+  ffinal[0]='\0';
+  strcat(ffinal,"asizes/asize");
+  strcat(ffinal,fname);
+
+  file=fopen(ffinal, "w");
+  if (!file) {
+    printf("error creating asizes file\n");
   }
-  switch (reg)
-    {
-    case 0:
-      sprintf(finf, "NONE");
-      break;
+  fwrite(actualsize, sizeof(double), ngen, file);
+  fclose(file);
 
-    case 1:
-      sprintf(finf, "SIG%1.3f", sigma);
-      break;
-
-    case 2:
-      sprintf(finf, "EXACT");
-      break;
-      
-    case 3:
-      sprintf(finf, "CAP%1.2f",sigonspike);
-      break;
-
-    case 4:
-      sprintf(finf, "SPD%1.2f",sigonspike);
-      break;
-
-    case 5:
-      sprintf(finf, "AVG");
-      break;
-      
-    case 6:
-      sprintf(finf,"SEC");
-      break;
-    }
-  strcat(fname,finf);
-  sprintf(finf, "L%1.3f", spike);
-  strcat(fname,finf);
-  sprintf(finf, "A%1.2f", alpha);
-  strcat(fname,finf);
-  sprintf(finf, "N%d", ngen);
-  strcat(fname,finf);
-  sprintf(finf, "S%d", seed);
-  strcat(fname,finf);
+  ffinal[0]='\0';
+  strcat(ffinal,"sizes/size");
+  strcat(ffinal,fname);
   
-  file=fopen(fname, "w");
+  file=fopen(ffinal, "w");
   if (!file) {
     printf("error creating sizes file\n");
   }
   fwrite(a, sizeof(double), ngen, file);
   fclose(file);
+  */
   /*
   double ders[10000];
   complex nt, nz;
   double ns;
   for (int k=0;k<10;k++) {
     nt.x=0;
-    nt.y=(6.14*k)/10;
+    nt.y=(6.28*k)/10;
     nt=cexp(nt);
     for (int l=0;l<1000;l++) {
       nz=nt;
@@ -242,8 +222,27 @@ char *argv[];
       ders[1000*k+l]=dmap(nz);
     }
   }
-  file=fopen("derivativesS","a");
+  file=fopen("dercirc","a");
   fwrite(ders, sizeof(double),10000, file);
+  fclose(file);
+
+  
+  complex ders[1000];
+  complex nt, nz;
+  double ns;
+  for (int k=0;k<10;k++) {
+    nt.x=0;
+    nt.y=(6.28*k)/10;
+    nt=cexp(nt);
+    for (int l=0;l<100;l++) {
+      nz=nt;
+      nz.x *= 1+l*0.02;
+      nz.y *= 1+l*0.02;
+      ders[100*k+l]=f(nz,cx_1,0.4);
+    }
+  }
+  file=fopen("circf","a");
+  fwrite(ders, sizeof(complex),1000, file);
   fclose(file); */
 }
 
@@ -284,12 +283,26 @@ void aggregate()
     }
   theta[nagg]=randt();   /* attachment point */
   a[nagg]=finda(theta[nagg]);  /* corresponding length of slit */
-  complex midpoint;
-  double scale=1+a[nagg]/2;
-  midpoint.x=theta[nagg].x*scale;
-  midpoint.y=theta[nagg].y*scale;
-  location[nagg]=map(midpoint);
-  capacity*=capf(a[nagg]);
+  double scale;
+  if (particlechoice==1) {
+    complex midpoint;
+    scale=1+a[nagg]/2;
+    midpoint.x=theta[nagg].x*scale;
+    midpoint.y=theta[nagg].y*scale;
+    location[nagg]=map(midpoint);
+    capacity*=capf(a[nagg]);
+  } else if (particlechoice==2) {
+    complex basepoint;
+    //double curra=a[nagg];
+    //scale=curra+sqrt(1+curra*curra);
+    basepoint=map(theta[nagg]);
+    location[nagg]=basepoint;
+    //complex endpoint; 
+    //endpoint.x=theta[nagg].x*scale;
+    //endpoint.y=theta[nagg].y*scale;
+    //endpoint=map(endpoint);
+    //actualsize[nagg]=cabs(sub(basepoint,endpoint));
+  }
   nagg++;  /* nagg is a global variable */
 }
 
@@ -323,25 +336,27 @@ double finda(t)
       dr=1;
       vl=0;
       zeropoint=map(t);
-      rr.x=1+dr;
-      point=map(mult(rr,t));
+      //printf("%lf %lf\n",zeropoint.x,zeropoint.y);
+      //rr.x=1+dr;
+      point=map(mult(f(cx_1,cx_1,dr),t));
       vr=cabs(sub(zeropoint,point));
       while (vr<spike) {
 	dl=dr;
 	dr=2*dr;
-	rr.x=1+dr;
+	//rr.x=1+dr;
 	vl=vr;
-	point=map(mult(rr,t));
+	point=map(mult(f(cx_1,cx_1,dr),t));
+	//printf("%lf+%lfi, %lf+%lfi\n",mult(f(cx_1,cx_1,dr),t).x,mult(f(cx_1,cx_1,dr),t).y,point.x,point.y);
 	vr=cabs(sub(zeropoint,point));
+	//printf("dr=%lf, vr=%lf\n",dr,vr);
       }
-      printf("Found Upper Bound\n");
-      printf("%lf %lf\n",zeropoint.x,zeropoint.y);
+      //printf("Found Upper Bound\n");
       dn=dr;
       vn=vr;
       while (vn-spike>0.000001 || vn-spike<-0.000001) {
 	dn=(dr*(spike-vl)+dl*(vr-spike))/(vr-vl);
-	rr.x=1+dn;
-	point=map(mult(rr,t));
+	//rr.x=1+dn;
+	point=map(mult(f(cx_1,cx_1,dn),t));
 	vn=cabs(sub(zeropoint,point));
 	if (vn>spike) {
 	  dr=dn;
@@ -350,8 +365,8 @@ double finda(t)
 	  dl=dn;
 	  vl=vn;
 	}
-	printf("%lf %lf %lf %lf\n",dn,vn,point.x,point.y);
-	printf("%lf %lf %lf %lf\n",dl,dr,vl,vr);
+	//printf("%lf %lf %lf %lf\n",dn,vn,point.x,point.y);
+	//printf("%lf %lf %lf %lf\n",dl,dr,vl,vr);
       }
       d=dn;
       break;

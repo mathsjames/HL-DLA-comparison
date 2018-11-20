@@ -16,6 +16,7 @@ static complex cx_2={2.0,0.0};
 static complex cx_4={4.0,0.0};
 extern complex eta;
 static complex cx_half={0.5,0.0};
+extern unsigned int particlechoice;
 
 /* Functions */
 /*complex capac1(), capac2(),m(), derm(), mi(), dermi(), slit(), derslit(), bend(), sf(), dersf(), f();
@@ -182,6 +183,59 @@ double dsf(z,t,a)
   return(d);
 }
 
+complex phi(z,wed)
+     complex z, wed;
+{
+  return div(sub(mult(wed,z),cx_1),sub(z,wed));
+}
+
+complex derphi(z,wed)
+     complex z, wed;
+{
+  complex d;
+  d=sub(z,wed);
+  return div(sub(cx_1,mult(wed,wed)),mult(d,d));
+}
+
+complex circf(z,t,r)
+     complex z, t;
+     double r;
+{
+  complex wed, iwed, x, w, rotz, fact;
+  double temp;
+  rotz=div(z,t);
+  temp=1/sqrt(1+r*r);
+  wed.x=temp;
+  wed.y=r*temp;
+  w=phi(contsqrt(phi(rotz,wed),cx_1pi),contsqrt(wed,cx_1));
+
+  return(mult(w,t));
+}
+
+complex dercircf(z,t,r)
+     complex z, t;
+     double r;
+{
+  complex wed, f1, f2, f3, dw, rotz, sp;
+  double temp;
+  rotz=div(z,t);
+  temp=1/sqrt(1+r*r);
+  wed.x=temp;
+  wed.y=r*temp;
+  sp=contsqrt(phi(rotz,wed),cx_1pi);
+  f1=derphi(rotz,wed);
+  f2=derphi(sp,contsqrt(wed,cx_1));
+  dw=div(mult(f1,f2),mult(cx_2,sp));
+  return(dw);
+}
+
+double dcircf(z,t,r)
+     complex z, t;
+     double r;
+{
+  return(cabs(dercircf(z,t,r)));
+}
+
 /* The building block function: 
    The parameter eta determines shape of bump, eta=1 is slit map
    Uses exp(eta log(f/z))*/
@@ -191,11 +245,18 @@ complex f(z,t,a)
      double a;
 {
   complex w, loceta;
-  loceta.x=a*(eta.x-1)+1;
-  loceta.y=0;
-  printf("%lf %lf %lf\n",eta.x,loceta.x,loceta.y);
-  w=div(sf(mult(loceta,z),t,a),loceta);
- 
+  switch (particlechoice)
+    {
+    case 1:
+      loceta.x=a*(eta.x-1)+1;
+      loceta.y=0;
+      //printf("%lf %lf %lf\n",eta.x,loceta.x,loceta.y);
+      w=div(sf(mult(loceta,z),t,a),loceta);
+      break;
+    case 2:
+      w=circf(z,t,a);
+      break;
+    }
   return(w);
 }
 
@@ -208,9 +269,17 @@ double df(z,t,a)
 {
   complex loceta;
   double w;
-  loceta.x=a*(eta.x-1)+1;
-  loceta.y=0;
-  w=dsf(mult(loceta,z),t,a); 
+  switch (particlechoice)
+    {
+    case 1:
+      loceta.x=a*(eta.x-1)+1;
+      loceta.y=0;
+      w=dsf(mult(loceta,z),t,a);
+      break;
+    case 2:
+      w=dcircf(z,t,a);
+      break;
+    }
   return(w); 
 }
 

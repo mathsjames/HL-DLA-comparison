@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
 	    point=point*(radius*1.1);
 	  }
       }
-    distances[i]=setDistance(particles,particleNumber+1,point);
+    distances[i]=setDistance(particles,particleNumber+1,point)/radius;
     if ((100*i)/trialnum>percentdone) {
       percentdone=(100*i)/trialnum;
       printf("%d percent done\n",percentdone);
@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
 
   //qsort (distances, trialnum, sizeof(double), comp );
 
-  printf("%f, %f, %f, %f\n",distances[0],distances[1],distances[2],distances[3]);
+  //printf("%f, %f, %f, %f\n",distances[0],distances[1],distances[2],distances[3]);
 
   
   FILE *writeFILE;
