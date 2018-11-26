@@ -6,6 +6,18 @@
 #include <string.h>
 #include <algorithm>
 
+int comp(const void *xp,const void *yp) {
+  double x = *((double *) xp);
+  double y = *((double *) yp);
+  if (x < y) {
+    return -1;
+  }
+  if (x > y) {
+    return 1;
+  }
+  return 0;
+}
+
 int state;
 
 int myrand() {
@@ -95,7 +107,7 @@ int main(int argc, char** argv) {
   }
 
 
-  //qsort (distances, trialnum, sizeof(double), comp );
+  qsort (distances, trialnum, sizeof(double), comp );
 
   //printf("%f, %f, %f, %f\n",distances[0],distances[1],distances[2],distances[3]);
 
