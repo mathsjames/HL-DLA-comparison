@@ -2,3 +2,5 @@ cd src/Sola/
 make
 mv ClusterHL ../../
 cd ../../
+gcc -o asizecompacter src/New/asizecompacter.c
+g++ -o Dimension src/New/dimension.cpp
