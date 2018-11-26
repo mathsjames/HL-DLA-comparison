@@ -43,6 +43,8 @@ static int ngen=NGEN, reg=1;
 complex eta;
 unsigned int particlechoice=1;
 unsigned int state;
+int saveasizes;
+double asizedist[100000];
 
 /* Functions */
 complex map(), f(), randt(), sf(), derslit();
@@ -111,6 +113,11 @@ char *argv[];
 	  sscanf(argv[++i],"%d",&reg);
 	  break;
 
+	case 'x': /* indicates whether actual sizes should be saved, default 0 */
+	  if(argc <= (i+1)) usage();
+	  sscanf(argv[++i],"%d",&saveasizes);
+	  break;  
+
 	case 'z': /*sigonspike*/
 	  if(argc <= (i+1)) usage();
 	  sscanf(argv[++i],"%lf",&sigonspike);
@@ -120,10 +127,16 @@ char *argv[];
 	  usage();
 	}
     }
+  FILE *file;
+  if (reg==7) {
+    file=fopen("asizes/compact","r");
+    fread(asizedist,sizeof(double),1000,file);
+    fclose(file);
+  }
   grow();  /* generates list of attachment points, length of slit to be attached and locations */
   /* when grow() stops, nagg = NGEN */
   fprintf(stderr,"%d generations complete.\n",ngen);
-  FILE *file;
+
   
   fname[0]='\0';
   finf[0]='\0';
@@ -161,6 +174,10 @@ char *argv[];
     case 6:
       sprintf(finf,"SEC");
       break;
+
+    case 7:
+      sprintf(finf,"MC");
+      break;
     }
   strcat(fname,finf);
   sprintf(finf, "L%1.3f", spike);
@@ -184,18 +201,19 @@ char *argv[];
   fwrite(location, sizeof(complex), ngen, file);
   fclose(file);
   
-  /*
-  ffinal[0]='\0';
-  strcat(ffinal,"asizes/asize");
-  strcat(ffinal,fname);
+  if (saveasizes) {
+    ffinal[0]='\0';
+    strcat(ffinal,"asizes/asize");
+    strcat(ffinal,fname);
 
-  file=fopen(ffinal, "w");
-  if (!file) {
-    printf("error creating asizes file\n");
+    file=fopen(ffinal, "w");
+    if (!file) {
+      printf("error creating asizes file\n");
+    }
+    fwrite(actualsize, sizeof(double), ngen, file);
+    fclose(file);
   }
-  fwrite(actualsize, sizeof(double), ngen, file);
-  fclose(file);
-
+  /*
   ffinal[0]='\0';
   strcat(ffinal,"sizes/size");
   strcat(ffinal,fname);
@@ -293,15 +311,17 @@ void aggregate()
     capacity*=capf(a[nagg]);
   } else if (particlechoice==2) {
     complex basepoint;
-    //double curra=a[nagg];
-    //scale=curra+sqrt(1+curra*curra);
     basepoint=map(theta[nagg]);
     location[nagg]=basepoint;
-    //complex endpoint; 
-    //endpoint.x=theta[nagg].x*scale;
-    //endpoint.y=theta[nagg].y*scale;
-    //endpoint=map(endpoint);
-    //actualsize[nagg]=cabs(sub(basepoint,endpoint));
+    if (saveasizes) {
+      double curra=a[nagg];
+      scale=curra+sqrt(1+curra*curra);
+      complex endpoint; 
+      endpoint.x=theta[nagg].x*scale;
+      endpoint.y=theta[nagg].y*scale;
+      endpoint=map(endpoint);
+      actualsize[nagg]=cabs(sub(basepoint,endpoint));
+    }
   }
   nagg++;  /* nagg is a global variable */
 }
@@ -314,7 +334,7 @@ void aggregate()
 double finda(t)
      complex t;
 {
-  double d, dr, dl, dn, vr, vl, vn, D1, D2;
+  double d, dr, dl, dn, vr, vl, vn, D1, D2, randspike;
   complex rr, zeropoint, point;
   rr.y=0;
 
@@ -336,6 +356,7 @@ double finda(t)
       dr=1;
       vl=0;
       zeropoint=map(t);
+      //printf("nagg=%d\n",nagg);
       //printf("%lf %lf\n",zeropoint.x,zeropoint.y);
       //rr.x=1+dr;
       point=map(mult(f(cx_1,cx_1,dr),t));
@@ -355,6 +376,9 @@ double finda(t)
       vn=vr;
       while (vn-spike>0.000001 || vn-spike<-0.000001) {
 	dn=(dr*(spike-vl)+dl*(vr-spike))/(vr-vl);
+	if (dn==dr || dn==dl) {
+	  break;
+	}
 	//rr.x=1+dn;
 	point=map(mult(f(cx_1,cx_1,dn),t));
 	vn=cabs(sub(zeropoint,point));
@@ -441,11 +465,56 @@ double finda(t)
       }
       printf("%d %f %f %f\n",nagg,d,D1,D2);
       break;
-    }
-  
-  return(d);
-}
+    
 
+    case 7:
+      /*make displacement exact but random*/
+      randspike=asizedist[myrand()%100000];
+      dl=0;
+      dr=1;
+      vl=0;
+      zeropoint=map(t);
+      //printf("%lf %lf\n",zeropoint.x,zeropoint.y);
+      //rr.x=1+dr;
+      point=map(mult(f(cx_1,cx_1,dr),t));
+      vr=cabs(sub(zeropoint,point));
+      while (vr<randspike) {
+	dl=dr;
+	dr=2*dr;
+	//rr.x=1+dr;
+	vl=vr;
+	point=map(mult(f(cx_1,cx_1,dr),t));
+	//printf("%lf+%lfi, %lf+%lfi\n",mult(f(cx_1,cx_1,dr),t).x,mult(f(cx_1,cx_1,dr),t).y,point.x,point.y);
+	vr=cabs(sub(zeropoint,point));
+	//printf("dr=%lf, vr=%lf\n",dr,vr);
+      }
+      //printf("Found Upper Bound\n");
+      dn=dr;
+      vn=vr;
+      while (vn-randspike>0.000001 || vn-randspike<-0.000001) {
+	dn=(dr*(randspike-vl)+dl*(vr-randspike))/(vr-vl);
+	if (dn==dr || dn==dl) {
+	  break;
+	}
+	//rr.x=1+dn;
+	point=map(mult(f(cx_1,cx_1,dn),t));
+	vn=cabs(sub(zeropoint,point));
+	if (vn>randspike) {
+	  dr=dn;
+	  vr=vn;
+	} else {
+	  dl=dn;
+	  vl=vn;
+	}
+	//printf("%lf %lf %lf %lf\n",dn,vn,point.x,point.y);
+	//printf("%lf %lf %lf %lf\n",dl,dr,vl,vr);
+      }
+      d=dn;
+      break;
+  
+      return(d);
+    }
+}
 /* Riemann mapping to outside of aggregate */
 /* Gives the image of the point z after nagg particles have grown */
 complex map(z)
