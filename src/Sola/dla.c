@@ -130,7 +130,7 @@ char *argv[];
   FILE *file;
   if (reg==7) {
     file=fopen("asizes/compact","r");
-    fread(asizedist,sizeof(double),1000,file);
+    fread(asizedist,sizeof(double),100000,file);
     fclose(file);
   }
   grow();  /* generates list of attachment points, length of slit to be attached and locations */
@@ -244,7 +244,7 @@ char *argv[];
   fwrite(ders, sizeof(double),10000, file);
   fclose(file);
 
-  
+
   complex ders[1000];
   complex nt, nz;
   double ns;
@@ -261,7 +261,8 @@ char *argv[];
   }
   file=fopen("circf","a");
   fwrite(ders, sizeof(complex),1000, file);
-  fclose(file); */
+  fclose(file);
+  */
 }
 
 void eprintf(s) char *s; {fprintf(stderr,s);}
@@ -353,7 +354,7 @@ double finda(t)
     case 2:
       /*make displacement exact*/
       dl=0;
-      dr=1;
+      dr=spike;
       vl=0;
       zeropoint=map(t);
       //printf("nagg=%d\n",nagg);
@@ -469,9 +470,9 @@ double finda(t)
 
     case 7:
       /*make displacement exact but random*/
-      randspike=asizedist[myrand()%100000];
+      randspike=asizedist[myrand()%100000]/4;
       dl=0;
-      dr=1;
+      dr=spike;
       vl=0;
       zeropoint=map(t);
       //printf("%lf %lf\n",zeropoint.x,zeropoint.y);
@@ -488,7 +489,7 @@ double finda(t)
 	vr=cabs(sub(zeropoint,point));
 	//printf("dr=%lf, vr=%lf\n",dr,vr);
       }
-      //printf("Found Upper Bound\n");
+      printf("Found Upper Bound\n");
       dn=dr;
       vn=vr;
       while (vn-randspike>0.000001 || vn-randspike<-0.000001) {

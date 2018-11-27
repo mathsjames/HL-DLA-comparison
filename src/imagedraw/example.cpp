@@ -51,7 +51,7 @@ int main(int argc, char** argv)
   }
   printf("loading %s\n",readfile);
   FILE *readFILE;
-  double _Complex particles[particleNumber];
+  double _Complex particles[particleNumber+1];
   readFILE = fopen(readfile,"r");
   fread(particles,sizeof(double _Complex),particleNumber+1,readFILE);
   fclose(readFILE);
@@ -61,9 +61,12 @@ int main(int argc, char** argv)
   for(int i=0; i<particleNumber+1; i++) {
     d=creal(particles[i]);
     if (d>radius) {radius=d;};
+    if (d<-radius) {radius=-d;};
     d=cimag(particles[i]);
     if (d>radius) {radius=d;};
+    if (d<-radius) {radius=-d;};
   }
+  radius+=eps;
   double scaleFactor=imageSize/(2*radius);
   printf("Scale Factor is %lf\n",scaleFactor);
   eps*=scaleFactor;
