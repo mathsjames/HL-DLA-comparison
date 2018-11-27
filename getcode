@@ -4,3 +4,5 @@ mv ClusterHL ../../
 cd ../../
 gcc -o asizecompacter src/New/asizecompacter.c
 g++ -o Dimension src/New/dimension.cpp
+g++ -g -o Cluster src/New/Cluster.cpp
+g++ -o imager src/imagedraw/example.cpp
