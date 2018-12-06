@@ -1,8 +1,0 @@
-cd src/Sola/
-make
-mv ClusterHL ../../
-cd ../../
-gcc -o asizecompacter src/New/asizecompacter.c
-g++ -O3 -o Dimension src/New/dimension.cpp
-g++ -O3 -o Cluster src/New/Cluster.cpp
-g++ -o imager src/imagedraw/example.cpp

@@ -1,5 +1,0 @@
-for i in {7..10}
-do
-  ./Dimension -r "location/locationP2SIG0.000L1.414A2.00N100000S"$i -w "DimH/dimP2N100000S"$i -n 100000 -p 100000 -s $i &
-
-done

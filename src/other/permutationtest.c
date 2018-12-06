@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
+#include <unistd.h>
 
 double *data11, *data12, *data22;
 
@@ -17,7 +17,7 @@ int fileread(char* fname, int size, double* data)
   FILE* file;
   data=malloc(sizeof(double)*size);
   if (!data) {
-    printf("malloc failed\n")
+    printf("malloc failed\n");
   }
   if (file=fopen(fname,"r")) {
     fread(data,sizeof(double),size,file);
@@ -30,7 +30,7 @@ int fileread(char* fname, int size, double* data)
   return 0;
 }
 
-double getEntry(int i, int j, int size1)
+double getEntry(int i, int j, int size1, int size2)
 {
   if (i<size1)
     {
@@ -65,7 +65,7 @@ double dist(int size1, int size2, int* subset1, int* subset2, int isIntra)
       endj=(isIntra)?i:size2;
       for (j=0;j<endj;j++)
 	{
-	  totalDist+=getEntry(subset1[i],subset2[j]);
+	  totalDist+=getEntry(subset1[i],subset2[j], size1, size2);
 	}
     }
   return totalDist*2;
@@ -95,7 +95,7 @@ double newenergy(int size1, int size2, double intra1, double intra2, double orig
 {
   double n1=size1;
   double n2=size2;
-  inter=originalSum-intra1-intra2;
+  double inter=originalSum-intra1-intra2;
 
   return energy(size1,size2,inter,intra1,intra2);
 }

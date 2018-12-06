@@ -60,7 +60,40 @@ int main(argc,argv)
   char fprefix1[100];
   char fprefix2[100];
   int reflexive;
+  double lowerLimit;
 
+  for(int i=1; i<argc; i++) {
+    switch(argv[i][1]) {
+
+    case '1':
+      sscanf(argv[++i],"%d",&size1);
+      break;
+
+    case '2':
+      sscanf(argv[++i],"%d",&size2);
+      break;
+
+    case 'c':
+      sscanf(argv[++i],"%d",&pointsused);
+      break;
+
+    case 'l':
+      sscanf(argv[++i],"%lf",&lowerLimit);
+
+    case 'p':
+      sscanf(argv[++i],"%s",fprefix1);
+      break;
+
+    case 'q':
+      sscanf(argv[++i],"%s",fprefix2);
+      break;
+
+    case 'r':
+      sscanf(argv[++i],"%d",&reflexive);
+      break;
+    }
+  }
+      
   double *data1;
   data1=malloc(sizeof(double)*pointsused*size1);
   double *data2;
