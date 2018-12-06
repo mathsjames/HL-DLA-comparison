@@ -49,7 +49,7 @@ double asizedist[100000];
 /* Functions */
 complex map(), f(), randt(), sf(), derslit();
 double capf(), cp(), cv(), dmap(), df(), finda(), dsf(), randu();
-void exit(), aggregate(), grow(), usage();
+void exit(), aggregate(), grow(), usage(), saveresults();
 unsigned int myrand();
 
 int main(argc,argv)
@@ -70,16 +70,6 @@ char *argv[];
 	case 'a':
 	  if(argc <= (i+1)) usage();
 	  sscanf(argv[++i],"%lf",&alpha);  /* %lf = double */
-	  break;
-
-	case 'e':
-	  if(argc <= (i+1)) usage();
-	  sscanf(argv[++i],"%lf",&(eta.x));  /* %lf = double */
-	  break;
-
-	case 'f':  /* reads name of capacity file */
-	  if(argc <= (i+1)) usage();
-	  sscanf(argv[++i],"%s",fid);  /* %s = string */
 	  break;
 
 	case 'g':  /* reads number generations from user, default 100 */
@@ -118,17 +108,12 @@ char *argv[];
 	  sscanf(argv[++i],"%d",&saveasizes);
 	  break;  
 
-	case 'z': /*sigonspike*/
-	  if(argc <= (i+1)) usage();
-	  sscanf(argv[++i],"%lf",&sigonspike);
-	  break;
-
 	default:
 	  usage();
 	}
     }
   FILE *file;
-  if (reg==7) {
+  if (reg==3) {
     file=fopen("asizes/compact","r");
     fread(asizedist,sizeof(double),100000,file);
     fclose(file);
@@ -136,15 +121,17 @@ char *argv[];
   grow();  /* generates list of attachment points, length of slit to be attached and locations */
   /* when grow() stops, nagg = NGEN */
   fprintf(stderr,"%d generations complete.\n",ngen);
+  saveresults(seed);
+}
 
-  
+void saveresults(int seed)
+{
+  FILE* file;
   fname[0]='\0';
   finf[0]='\0';
   strcat(fname,fid);
-  if (particlechoice>1) {
-    sprintf(finf, "P%u", particlechoice);
-    strcat(fname,finf);
-  }
+  sprintf(finf, "P%u", particlechoice);
+  strcat(fname,finf);
   switch (reg)
     {
     case 0:
@@ -152,37 +139,24 @@ char *argv[];
       break;
 
     case 1:
-      sprintf(finf, "SIG%1.3f", sigma);
+      if (sigma>0)
+	{
+	  sprintf(finf, "SIG%1.3f", sigma);
+	}
+      else
+	{
+	  sprintf(finf, "HL");
+	}
       break;
 
     case 2:
       sprintf(finf, "EXACT");
       break;
-      
+
     case 3:
-      sprintf(finf, "CAP%1.2f",sigonspike);
-      break;
-
-    case 4:
-      sprintf(finf, "SPD%1.2f",sigonspike);
-      break;
-
-    case 5:
-      sprintf(finf, "AVG");
-      break;
-      
-    case 6:
-      sprintf(finf,"SEC");
-      break;
-
-    case 7:
       sprintf(finf,"MC");
       break;
     }
-  strcat(fname,finf);
-  sprintf(finf, "L%1.3f", spike);
-  strcat(fname,finf);
-  sprintf(finf, "A%1.2f", alpha);
   strcat(fname,finf);
   sprintf(finf, "N%d", ngen);
   strcat(fname,finf);
@@ -213,56 +187,6 @@ char *argv[];
     fwrite(actualsize, sizeof(double), ngen, file);
     fclose(file);
   }
-  /*
-  ffinal[0]='\0';
-  strcat(ffinal,"sizes/size");
-  strcat(ffinal,fname);
-  
-  file=fopen(ffinal, "w");
-  if (!file) {
-    printf("error creating sizes file\n");
-  }
-  fwrite(a, sizeof(double), ngen, file);
-  fclose(file);
-  */
-  /*
-  double ders[10000];
-  complex nt, nz;
-  double ns;
-  for (int k=0;k<10;k++) {
-    nt.x=0;
-    nt.y=(6.28*k)/10;
-    nt=cexp(nt);
-    for (int l=0;l<1000;l++) {
-      nz=nt;
-      nz.x *= 1+l*0.0005;
-      nz.y *= 1+l*0.0005;
-      ders[1000*k+l]=dmap(nz);
-    }
-  }
-  file=fopen("dercirc","a");
-  fwrite(ders, sizeof(double),10000, file);
-  fclose(file);
-
-
-  complex ders[1000];
-  complex nt, nz;
-  double ns;
-  for (int k=0;k<10;k++) {
-    nt.x=0;
-    nt.y=(6.28*k)/10;
-    nt=cexp(nt);
-    for (int l=0;l<100;l++) {
-      nz=nt;
-      nz.x *= 1+l*0.02;
-      nz.y *= 1+l*0.02;
-      ders[100*k+l]=f(nz,cx_1,0.4);
-    }
-  }
-  file=fopen("circf","a");
-  fwrite(ders, sizeof(complex),1000, file);
-  fclose(file);
-  */
 }
 
 void eprintf(s) char *s; {fprintf(stderr,s);}
@@ -271,13 +195,13 @@ void usage()   /* prints options that should be passed to the main, then exits *
 {
   eprintf("Usage:  dla [options] (defaults below)\n");
   eprintf("  -a [alpha parameter] (2)\n");
-  eprintf("  -f [file identifier] ()\n");
   eprintf("  -g [number of generations] (500)\n");
   eprintf("  -l [length of first slit] (1.414)\n");
+  eprintf("  -p [particle shape 1=slit 2=ball] (1)\n");
   eprintf("  -s [sigma] (0)\n");
   eprintf("  -S [random seed]\n");
-  eprintf("  -r [regularization (0=none 1=sigma 2=exact 3=cap 4=sigpropd)] (1)\n");
-  eprintf("  -z [sigonspike] (0.5)\n");
+  eprintf("  -r [regularization (0=none 1=sigma 2=exact 3=monte carlo)] (1)\n");
+  eprintf("  -x [saveActualSizes] (0)\n");
   exit(0);
 }
 
@@ -329,13 +253,11 @@ void aggregate()
 
 
 /* Compute the size of the nth particle */
-/* For naively regularized model choose exp() */
 
-/*double finda(t)*/
 double finda(t)
      complex t;
 {
-  double d, dr, dl, dn, vr, vl, vn, D1, D2, randspike;
+  double d, dr, dl, dn, vr, vl, vn, D1, D2, spikelength;
   complex rr, zeropoint, point;
   rr.y=0;
 
@@ -352,163 +274,41 @@ double finda(t)
       break;
 
     case 2:
-      /*make displacement exact*/
-      dl=0;
-      dr=spike;
-      vl=0;
-      zeropoint=map(t);
-      //printf("nagg=%d\n",nagg);
-      //printf("%lf %lf\n",zeropoint.x,zeropoint.y);
-      //rr.x=1+dr;
-      point=map(mult(f(cx_1,cx_1,dr),t));
-      vr=cabs(sub(zeropoint,point));
-      while (vr<spike) {
-	dl=dr;
-	dr=2*dr;
-	//rr.x=1+dr;
-	vl=vr;
-	point=map(mult(f(cx_1,cx_1,dr),t));
-	//printf("%lf+%lfi, %lf+%lfi\n",mult(f(cx_1,cx_1,dr),t).x,mult(f(cx_1,cx_1,dr),t).y,point.x,point.y);
-	vr=cabs(sub(zeropoint,point));
-	//printf("dr=%lf, vr=%lf\n",dr,vr);
-      }
-      //printf("Found Upper Bound\n");
-      dn=dr;
-      vn=vr;
-      while (vn-spike>0.000001 || vn-spike<-0.000001) {
-	dn=(dr*(spike-vl)+dl*(vr-spike))/(vr-vl);
-	if (dn==dr || dn==dl) {
-	  break;
-	}
-	//rr.x=1+dn;
-	point=map(mult(f(cx_1,cx_1,dn),t));
-	vn=cabs(sub(zeropoint,point));
-	if (vn>spike) {
-	  dr=dn;
-	  vr=vn;
-	} else {
-	  dl=dn;
-	  vl=vn;
-	}
-	//printf("%lf %lf %lf %lf\n",dn,vn,point.x,point.y);
-	//printf("%lf %lf %lf %lf\n",dl,dr,vl,vr);
-      }
-      d=dn;
-      break;
-
+      spikelength=spike; //falls through to next case
     case 3:
-      /*choose sigma from capacity*/
-      sigma=(spike*sigonspike/pow(capacity,0.333));
-      rr.x=1.0+sigma;
-      d=spike*pow(capacity,alpha/2-1)/pow(dmap(mult(rr,t)),alpha/2);
-      //printf("cap %f, sig %f, d %f\n",capacity,sigma,d);
-      break;
+      if (reg=3)
+	spikelength=asizedist[myrand()%100000]/4;
 
-    case 4:
-      /*make sigma=d exactly */
-      dl=0;
-      dr=1;
-      vl=0;
-      rr.x=1+dr;
-      vr=dr*dmap(mult(rr,t));
-      while (vr<sigonspike*spike) {
-	dl=dr;
-	dr=2*dr;
-	rr.x=1+dr;
-	vl=vr;
-	vr=dr*dmap(mult(rr,t));
-      }
-      dn=dr;
-      vn=vr;
-      while (vn-sigonspike*spike>0.000001 || vn-sigonspike*spike<-0.000001) {
-	dn=(dr*(sigonspike*spike-vl)+dl*(vr-sigonspike*spike))/(vr-vl);
-	rr.x=1+dn;
-	vn=dn*dmap(mult(rr,t));
-	if (vn>sigonspike*spike) {
-	  dr=dn;
-	  vr=vn;
-	} else {
-	  dl=dn;
-	  vl=vn;
-	}
-      }
-      d=dn;
-      break;
-
-    case 5:
-      /* geometric average of both extremes*/
-      d=sqrt(dmap(t)*capacity);
-      //if(capacity>d) {
-      //	d=capacity;
-      //}
-      d=spike/pow(d, alpha/2);
-      break;
-
-    case 6:
-      /*second order taylor*/
-      rr.y=1.000001;
-      D1=dmap(t);
-      D2=(rr.y-1)*(dmap(mult(t,rr))-D1);
-      if (D2<-D1*D1/(2*spike)) {
-	printf("cut on %d \n",nagg);
-	d=2*spike/D1;
-      } else {
-
-	if (D2<0.0000000000001) {
-	  if (D2>-0.000001/D1) {
-	    d=spike/D1;
-	  } else {
-	    d=-D1/D2-sqrt(D1*D1/(D2*D2)+2*spike/D2);
-	  }
-	} else {
-	  d=-D1/D2+sqrt(D1*D1/(D2*D2)+2*spike/D2);
-	}
-      }
-      printf("%d %f %f %f\n",nagg,d,D1,D2);
-      break;
-    
-
-    case 7:
-      /*make displacement exact but random*/
-      randspike=asizedist[myrand()%100000]/4;
+      /*make displacement exactly spikelength*/
       dl=0;
       dr=spike;
       vl=0;
       zeropoint=map(t);
-      //printf("%lf %lf\n",zeropoint.x,zeropoint.y);
-      //rr.x=1+dr;
       point=map(mult(f(cx_1,cx_1,dr),t));
       vr=cabs(sub(zeropoint,point));
-      while (vr<randspike) {
+      while (vr<spikelength) {
 	dl=dr;
 	dr=2*dr;
-	//rr.x=1+dr;
 	vl=vr;
 	point=map(mult(f(cx_1,cx_1,dr),t));
-	//printf("%lf+%lfi, %lf+%lfi\n",mult(f(cx_1,cx_1,dr),t).x,mult(f(cx_1,cx_1,dr),t).y,point.x,point.y);
 	vr=cabs(sub(zeropoint,point));
-	//printf("dr=%lf, vr=%lf\n",dr,vr);
       }
-      printf("Found Upper Bound\n");
       dn=dr;
       vn=vr;
-      while (vn-randspike>0.000001 || vn-randspike<-0.000001) {
-	dn=(dr*(randspike-vl)+dl*(vr-randspike))/(vr-vl);
+      while (vn-spikelength>0.000001 || vn-spikelength<-0.000001) {
+	dn=(dr*(spikelength-vl)+dl*(vr-spikelength))/(vr-vl);
 	if (dn==dr || dn==dl) {
 	  break;
 	}
-	//rr.x=1+dn;
 	point=map(mult(f(cx_1,cx_1,dn),t));
 	vn=cabs(sub(zeropoint,point));
-	if (vn>randspike) {
+	if (vn>spikelength) {
 	  dr=dn;
 	  vr=vn;
 	} else {
 	  dl=dn;
 	  vl=vn;
 	}
-	//printf("%lf %lf %lf %lf\n",dn,vn,point.x,point.y);
-	//printf("%lf %lf %lf %lf\n",dl,dr,vl,vr);
       }
       d=dn;
       break;
@@ -516,6 +316,7 @@ double finda(t)
       return(d);
     }
 }
+
 /* Riemann mapping to outside of aggregate */
 /* Gives the image of the point z after nagg particles have grown */
 complex map(z)

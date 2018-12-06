@@ -30,7 +30,7 @@ int main() {
   currentpoint=asizes;
   for (k=1;k<11;k++) {
     filename[0]='\0';
-    strcat(filename,"asizes/asizeP2SIG0.000L1.414A2.00N100000S");
+    strcat(filename,"asizes/asizeP2HLN100000S");
     sprintf(number,"%d",k);
     strcat(filename,number);
     file=fopen(filename,"r");
