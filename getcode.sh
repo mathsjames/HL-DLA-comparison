@@ -8,4 +8,3 @@ g++ -O3 -o ClusterDLA src/DLA/clusterDLA.cpp
 g++ -o Imager src/imagedraw/imager.cpp
 gcc -o DistArray src/other/distarray.c
 gcc -o Energies src/other/energies.c
-
