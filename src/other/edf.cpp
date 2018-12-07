@@ -77,7 +77,11 @@ int main(int argc, char** argv) {
   FILE *readFILE;
   double _Complex particles[particleNumber];
   readFILE = fopen(readfile,"r");
-  fread(particles,sizeof(double _Complex),particleNumber+1,readFILE);
+  if (!readFILE || particleNumber+1!=fread(particles,sizeof(double _Complex),particleNumber+1,readFILE))
+    {
+      printf("failed to read particles data\n");
+      return 1;
+    }
   fclose(readFILE);
 
   double radius=0;

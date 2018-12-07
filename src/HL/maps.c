@@ -14,7 +14,6 @@ static complex cx_1mi={1.0,-1.0};
 static complex cx_0={0.0,0.0};
 static complex cx_2={2.0,0.0};
 static complex cx_4={4.0,0.0};
-extern complex eta;
 static complex cx_half={0.5,0.0};
 extern unsigned int particlechoice;
 
@@ -237,21 +236,17 @@ double dcircf(z,t,r)
 }
 
 /* The building block function: 
-   The parameter eta determines shape of bump, eta=1 is slit map
-   Uses exp(eta log(f/z))*/
+   1 is the slit map, 2 is a circular bulge*/
 
 complex f(z,t,a)
      complex z, t;
      double a;
 {
-  complex w, loceta;
+  complex w;
   switch (particlechoice)
     {
     case 1:
-      loceta.x=a*(eta.x-1)+1;
-      loceta.y=0;
-      //printf("%lf %lf %lf\n",eta.x,loceta.x,loceta.y);
-      w=div(sf(mult(loceta,z),t,a),loceta);
+      w=sf(z,t,a);
       break;
     case 2:
       w=circf(z,t,a);
@@ -267,14 +262,11 @@ double df(z,t,a)
      complex z, t;
      double a;
 {
-  complex loceta;
   double w;
   switch (particlechoice)
     {
     case 1:
-      loceta.x=a*(eta.x-1)+1;
-      loceta.y=0;
-      w=dsf(mult(loceta,z),t,a);
+      w=dsf(z,t,a);
       break;
     case 2:
       w=dcircf(z,t,a);

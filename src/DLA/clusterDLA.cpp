@@ -142,10 +142,9 @@ void generatecluster(char cfile[], int particleNumber, int useRandomSizes)
   
   if (useRandomSizes) {
     fp=fopen("asizes/compact","r");
-    if (!fp) {
+    if (!fp || asizesamplesize!=fread(asizedist,sizeof(double),asizesamplesize,fp)) {
       printf("failed to load asize data\n");
     }
-    fread(asizedist,sizeof(double),asizesamplesize,fp);
     fclose(fp);
     for (int k=0;k<asizesamplesize;k++) {
       maxsize=max(maxsize,asizedist[k]);
@@ -156,7 +155,6 @@ void generatecluster(char cfile[], int particleNumber, int useRandomSizes)
     sizes[particleCount+1]=0.5;
     if (useRandomSizes) {
       int temp=myrand()%asizesamplesize;
-      printf("%d %lf\n",temp,asizedist[temp]);
       sizes[particleCount+1]=asizedist[temp];
     }
     double _Complex position=startDist*randcirc();
@@ -176,17 +174,14 @@ void generatecluster(char cfile[], int particleNumber, int useRandomSizes)
 	  double scale=sizes[dcurr.nearest]+sizes[particleCount+1];
 	  double d1=dcurr.d1/scale+1;
 	  double d2=dcurr.d2/scale+1;
-	  printf("%lf %lf\n",d1,d2);
 	  struct Step thisStep;
 	  thisStep=findStep(d1,d2,particles[dcurr.nearest]-position);
 	  position+=thisStep.thestep;
 	  if (thisStep.finished) {
 	    particles[particleCount+1]=position;
-	    printf("newparticle:%lf+I%lf\n",creal(position),cimag(position));
 	    startDist=max(startDist,cabs(position)+2*maxsize);
 	    break;
 	  }
-	  //printf("newposition:%lf+I%lf\n",creal(position),cimag(position));
 	}
       } else { // if all particles are the same size we use a different function to work with squared distances and avoid an excessive number of sqrt operations
 	dcurr=findSquaredDistances(position,particles,particleCount);
@@ -208,7 +203,7 @@ void generatecluster(char cfile[], int particleNumber, int useRandomSizes)
     }
   }
   char buffer[50];
-  sprintf(buffer,cfile);
+  sprintf(buffer,"%s",cfile);
   fp=fopen(buffer,"w");
   fwrite(particles, sizeof(double _Complex), particleNumber+1, fp);
   fclose(fp);

@@ -11,14 +11,13 @@
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
-//#include <stdlib.h> 
-#define PI 3.14159265358979
 
+#define PI 3.14159265358979
 #define ALPHA 2.00
-#define SPIKERR 0.01
 #define SPIKE 1.41421
 #define MAXAGG 100000
 #define NGEN 500
+#define ASIZECOUNT 100000
 
 /* Name of capacity file */
 static char fname[90];
@@ -37,19 +36,18 @@ complex theta[MAXAGG];
 complex location[MAXAGG];
 double a[MAXAGG];
 double actualsize[MAXAGG];
-static int nagg = 0;    
-static double alpha=ALPHA, spike = SPIKE, sigma = 0.0, sigonspike = 0.5, capacity=1.0;
+static int nagg = 0;
+static double alpha=ALPHA, spike = SPIKE, sigma = 0.0;
 static int ngen=NGEN, reg=1;
-complex eta;
 unsigned int particlechoice=1;
 unsigned int state;
 int saveasizes;
-double asizedist[100000];
+double asizedist[ASIZECOUNT];
 
 /* Functions */
 complex map(), f(), randt(), sf(), derslit();
 double capf(), cp(), cv(), dmap(), df(), finda(), dsf(), randu();
-void exit(), aggregate(), grow(), usage(), saveresults();
+void exit(), aggregate(), grow(), usage(), saveresults(), eprintf();
 unsigned int myrand();
 
 int main(argc,argv)
@@ -57,12 +55,9 @@ int argc;
 char *argv[];
 {
   int i;
-  /* int n; */
   unsigned int seed; /* if seed1 = seed2 then srandom(seed1) = srandom(seed2), i.e. same random sequence */
     
   state=time(NULL); 	/* reset random number generator */
-  eta.x=1.0;
-  eta.y=0.0;
   for(i=1; i<argc; i++)
     {	if(argv[i][0] != '-') usage();
       switch(argv[i][1])
@@ -113,14 +108,18 @@ char *argv[];
 	}
     }
   FILE *file;
-  if (reg==3) {
+  if (reg==3)
+    {
     file=fopen("asizes/compact","r");
-    fread(asizedist,sizeof(double),100000,file);
+    if (!file || ASIZECOUNT!=fread(asizedist,sizeof(double),ASIZECOUNT,file))
+      {
+	eprintf("failed to open asizes/compact\n");
+	return 1;
+      }
     fclose(file);
-  }
+    }
   grow();  /* generates list of attachment points, length of slit to be attached and locations */
   /* when grow() stops, nagg = NGEN */
-  fprintf(stderr,"%d generations complete.\n",ngen);
   saveresults(seed);
 }
 
@@ -189,7 +188,7 @@ void saveresults(int seed)
   }
 }
 
-void eprintf(s) char *s; {fprintf(stderr,s);}
+void eprintf(s) char *s; {fprintf(stderr,"%s",s);}
 
 void usage()   /* prints options that should be passed to the main, then exits */
 {
@@ -233,7 +232,6 @@ void aggregate()
     midpoint.x=theta[nagg].x*scale;
     midpoint.y=theta[nagg].y*scale;
     location[nagg]=map(midpoint);
-    capacity*=capf(a[nagg]);
   } else if (particlechoice==2) {
     complex basepoint;
     basepoint=map(theta[nagg]);
@@ -277,7 +275,7 @@ double finda(t)
       spikelength=spike; //falls through to next case
     case 3:
       if (reg=3)
-	spikelength=asizedist[myrand()%100000]/4;
+	spikelength=asizedist[myrand()%ASIZECOUNT]/4;
 
       /*make displacement exactly spikelength*/
       dl=0;
