@@ -274,7 +274,7 @@ double finda(t)
     case 2:
       spikelength=spike; //falls through to next case
     case 3:
-      if (reg=3)
+      if (reg==3)
 	spikelength=asizedist[myrand()%ASIZECOUNT]/4;
 
       /*make displacement exactly spikelength*/

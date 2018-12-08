@@ -196,43 +196,47 @@ complex derphi(z,wed)
   return div(sub(cx_1,mult(wed,wed)),mult(d,d));
 }
 
-complex circf(z,t,r)
+complex circf(z,t,a)
      complex z, t;
-     double r;
+     double a;
 {
-  complex wed, iwed, x, w, rotz, fact;
-  double temp;
+  complex wed, x, w, rotz;
+  double temp, r;
+  r=((a+1)-1/(a+1))/2;
   rotz=div(z,t);
   temp=1/sqrt(1+r*r);
   wed.x=temp;
   wed.y=r*temp;
-  w=phi(contsqrt(phi(rotz,wed),cx_1pi),contsqrt(wed,cx_1));
+  wed2=mult(wed,wed);
+  w=phi(contsqrt(phi(rotz,wed2),cx_1pi),wed);
 
   return(mult(w,t));
 }
 
-complex dercircf(z,t,r)
+complex dercircf(z,t,a)
      complex z, t;
-     double r;
+     double a;
 {
   complex wed, f1, f2, f3, dw, rotz, sp;
-  double temp;
+  double temp, r;
+  r=((a+1)-1/(a+1))/2;
   rotz=div(z,t);
   temp=1/sqrt(1+r*r);
   wed.x=temp;
   wed.y=r*temp;
-  sp=contsqrt(phi(rotz,wed),cx_1pi);
-  f1=derphi(rotz,wed);
-  f2=derphi(sp,contsqrt(wed,cx_1));
+  wed2=mult(wed,wed);
+  sp=contsqrt(phi(rotz,wed2),cx_1pi);
+  f1=derphi(rotz,wed2);
+  f2=derphi(sp,wed);
   dw=div(mult(f1,f2),mult(cx_2,sp));
   return(dw);
 }
 
-double dcircf(z,t,r)
+double dcircf(z,t,a)
      complex z, t;
-     double r;
+     double a;
 {
-  return(cabs(dercircf(z,t,r)));
+  return(cabs(dercircf(z,t,a)));
 }
 
 /* The building block function: 
