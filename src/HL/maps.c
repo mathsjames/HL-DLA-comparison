@@ -200,7 +200,7 @@ complex circf(z,t,a)
      complex z, t;
      double a;
 {
-  complex wed, x, w, rotz;
+  complex wed2, wed, x, w, rotz;
   double temp, r;
   r=((a+1)-1/(a+1))/2;
   rotz=div(z,t);
@@ -217,7 +217,7 @@ complex dercircf(z,t,a)
      complex z, t;
      double a;
 {
-  complex wed, f1, f2, f3, dw, rotz, sp;
+  complex wed2, wed, f1, f2, dw, rotz, sp;
   double temp, r;
   r=((a+1)-1/(a+1))/2;
   rotz=div(z,t);

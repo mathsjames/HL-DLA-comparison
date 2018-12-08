@@ -296,6 +296,7 @@ double finda(t)
       while (vn-spikelength>0.000001 || vn-spikelength<-0.000001) {
 	dn=(dr*(spikelength-vl)+dl*(vr-spikelength))/(vr-vl);
 	if (dn==dr || dn==dl) {
+	  printf("stopped converging\n");
 	  break;
 	}
 	point=map(mult(f(cx_1,cx_1,dn),t));
