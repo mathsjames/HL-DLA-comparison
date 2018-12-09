@@ -208,7 +208,7 @@ void usage()   /* prints options that should be passed to the main, then exits *
 void grow()
 {
   int i;
-  for(i=1; i<ngen; i++) {
+  for(i=1; i<=ngen; i++) {
     if (i%1000==0) {
       printf("%d percent done\n", (100*i)/ngen);
     }
@@ -296,7 +296,6 @@ double finda(t)
       while (vn-spikelength>0.000001 || vn-spikelength<-0.000001) {
 	dn=(dr*(spikelength-vl)+dl*(vr-spikelength))/(vr-vl);
 	if (dn==dr || dn==dl) {
-	  printf("stopped converging\n");
 	  break;
 	}
 	point=map(mult(f(cx_1,cx_1,dn),t));
@@ -311,9 +310,8 @@ double finda(t)
       }
       d=dn;
       break;
-  
-      return(d);
     }
+  return(d);
 }
 
 /* Riemann mapping to outside of aggregate */
@@ -323,7 +321,9 @@ complex map(z)
 {
   int i;
   for(i=nagg-1; i>=0; i--)
-    z = f(z,theta[i],a[i]);
+    {
+      z = f(z,theta[i],a[i]);
+    }
   return(z);
 }
 
