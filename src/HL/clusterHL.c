@@ -1,7 +1,7 @@
 /* HL growth Main Line */
 /* James Bell 2018 */
 /* based on code by Johansson Viklund & A Sola 2008--2014 */
-/* which was based on C program for DLA by C T McMullen */
+/* which was based on C program for DLA (Hastings Levitov) by C T McMullen */
 
 /* Grows a HL(alpha) cluster, composed by NGEN particles. */
 
@@ -192,7 +192,7 @@ void eprintf(s) char *s; {fprintf(stderr,"%s",s);}
 
 void usage()   /* prints options that should be passed to the main, then exits */
 {
-  eprintf("Usage:  dla [options] (defaults below)\n");
+  eprintf("Usage:  ClusterHL [options] (defaults below)\n");
   eprintf("  -a [alpha parameter] (2)\n");
   eprintf("  -g [number of generations] (500)\n");
   eprintf("  -l [length of first slit] (1.414)\n");
