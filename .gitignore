@@ -4,3 +4,8 @@
 *.o
 *.bmp
 *.png
+location/l*
+asizes/a*
+energies/en*
+distarray/d*
+edf/ed*
