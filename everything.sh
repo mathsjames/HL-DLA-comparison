@@ -1,5 +1,5 @@
 # compile all code
-./getcode
+./getcode.sh
 
 # generate actual size data for circular particle for later monte carlo using first 10 seeds
 ./runHL.sh 1 10 $cores 1 2 1

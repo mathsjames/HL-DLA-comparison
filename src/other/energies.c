@@ -141,11 +141,11 @@ int main(argc,argv)
   int *subset1, *subset2;
   
   char fname[210];
-  sprintf(fname,"dists/dists%s-%s",fprefix1,fprefix1);
+  sprintf(fname,"distarray/dists%s-%s",fprefix1,fprefix1);
   if (fileread(fname,size1*size1,data11)) return 1;
-  sprintf(fname,"dists/dists%s-%s",fprefix1,fprefix2);
+  sprintf(fname,"distarray/dists%s-%s",fprefix1,fprefix2);
   if (fileread(fname,size1*size2,data12)) return 1;
-  sprintf(fname,"dists/dists%s-%s",fprefix2,fprefix2);
+  sprintf(fname,"distarray/dists%s-%s",fprefix2,fprefix2);
   if (fileread(fname,size2*size2,data22)) return 1;
 
   energies=malloc(sizeof(double)*permcount);
