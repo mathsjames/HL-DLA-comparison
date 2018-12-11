@@ -12,13 +12,14 @@ unsigned int myrand() {
   return state;
 }
 
-int fileread(char* fname, int size, double* data)
+int fileread(char* fname, int size, double** datap)
 {
   FILE* file;
-  data=malloc(sizeof(double)*size);
+  double *data=malloc(sizeof(double)*size);
   if (!data) {
     printf("malloc failed\n");
   }
+  datap[0]=data;
   if (file=fopen(fname,"r")) {
     fread(data,sizeof(double),size,file);
     fclose(file);
@@ -142,11 +143,11 @@ int main(argc,argv)
   
   char fname[210];
   sprintf(fname,"distarray/dists%s-%s",fprefix1,fprefix1);
-  if (fileread(fname,size1*size1,data11)) return 1;
+  if (fileread(fname,size1*size1,&data11)) return 1;
   sprintf(fname,"distarray/dists%s-%s",fprefix1,fprefix2);
-  if (fileread(fname,size1*size2,data12)) return 1;
+  if (fileread(fname,size1*size2,&data12)) return 1;
   sprintf(fname,"distarray/dists%s-%s",fprefix2,fprefix2);
-  if (fileread(fname,size2*size2,data22)) return 1;
+  if (fileread(fname,size2*size2,&data22)) return 1;
 
   energies=malloc(sizeof(double)*permcount);
   subset1=malloc(sizeof(int)*(size1+size2));
@@ -201,6 +202,5 @@ int main(argc,argv)
   free(data12);
   free(data22);
   free(subset1);
-  free(subset2);
   return 0;
 }
