@@ -22,3 +22,22 @@
 ./runEDF.sh 11 5010 10 DLAMC1N
 
 # generate distance arrays
+fprefixes=(P2HLN100000S P2EXACTN100000S P2MCN100000S DLAMC0N DLAMC1N)
+sizes=(3000 500 500 16000 5000)
+for i in {0..4}
+do
+    ./runDA.sh ${fprefixes[i]} ${fprefixes[i]} ${sizes[i]} ${sizes[i]} 1
+    for j in {$(($i + 1))..4}
+    do
+	./runDA.sh ${fprefixes[i]} ${fprefixes[j]} ${sizes[i]} ${sizes[j]} 0
+    done
+done
+
+# Find energies of permutations
+for i in {0..4}
+do
+    for j in {$(($i + 1))..4}
+    do
+	time nohup nice -19 ./Energies -p ${fprefixes[i]} -q ${fprefixes[j]} -1 ${sizes[i]} -2 ${sizes[j]} -c 100000 &
+    done
+done

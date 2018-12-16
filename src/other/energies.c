@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 double *data11, *data12, *data22;
+int size1, size2;
 
 int state;
 
@@ -31,7 +32,7 @@ int fileread(char* fname, int size, double** datap)
   return 0;
 }
 
-double getEntry(int i, int j, int size1, int size2)
+double getEntry(int i, int j)
 {
   if (i<size1)
     {
@@ -57,22 +58,22 @@ double getEntry(int i, int j, int size1, int size2)
     }
 }
 
-double dist(int size1, int size2, int* subset1, int* subset2, int isIntra)
+double dist(int firstsize, int secondsize, int* subset1, int* subset2, int isIntra)
 {
   double totalDist=0;
   int i,j, endj;
-  for (i=isIntra;i<size1;i++)
+  for (i=isIntra;i<firstsize;i++)
     {
-      endj=(isIntra)?i:size2;
+      endj=(isIntra)?i:secondsize;
       for (j=0;j<endj;j++)
 	{
-	  totalDist+=getEntry(subset1[i],subset2[j], size1, size2);
+	  totalDist+=getEntry(subset1[i],subset2[j]);
 	}
     }
   return totalDist*2;
 }
 
-double energy(int size1, int size2, double inter, double intra1, double intra2)
+double energy( double inter, double intra1, double intra2)
 {
   double n1=size1;
   double n2=size2;
@@ -92,13 +93,13 @@ void shuffle(int* subset, int size)
 }
 
 
-double newenergy(int size1, int size2, double intra1, double intra2, double originalSum)
+double newenergy( double intra1, double intra2, double originalSum)
 {
   double n1=size1;
   double n2=size2;
   double inter=originalSum-intra1-intra2;
 
-  return energy(size1,size2,inter,intra1,intra2);
+  return energy(inter,intra1,intra2);
 }
 
 int main(argc,argv)
@@ -169,7 +170,7 @@ int main(argc,argv)
   inter=dist(size1,size2,subset1,subset2,0);
   intra1=dist(size1,size1,subset1,subset1,1);
   intra2=dist(size2,size2,subset2,subset2,1);
-  E=energy(size1,size2,inter,intra1,intra2);
+  E=energy(inter,intra1,intra2);
   originalSum=inter+intra1+intra2;
 
   for (i=0;i<permcount;i++)
@@ -178,7 +179,7 @@ int main(argc,argv)
       intra1=dist(size1,size1,subset1,subset1,1);
       intra2=dist(size2,size2,subset2,subset2,1);
       inter=originalSum-intra1-intra2;
-      energies[i]=newenergy(size1,size2,inter,intra1,intra2);
+      energies[i]=newenergy(inter,intra1,intra2);
     }
 
 
