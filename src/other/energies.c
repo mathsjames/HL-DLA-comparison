@@ -75,9 +75,7 @@ double dist(int firstsize, int secondsize, int* subset1, int* subset2, int isInt
 
 double energy( double inter, double intra1, double intra2)
 {
-  double n1=size1;
-  double n2=size2;
-  return (inter-n2*intra1/n1-n1*intra2/n2)/(n1+n2);
+  return (inter-size2*intra1/size1-size1*intra2/size2)/(size1+size2);
 }
 
 void shuffle(int* subset, int size)
@@ -92,21 +90,11 @@ void shuffle(int* subset, int size)
     }
 }
 
-
-double newenergy( double intra1, double intra2, double originalSum)
-{
-  double n1=size1;
-  double n2=size2;
-  double inter=originalSum-intra1-intra2;
-
-  return energy(inter,intra1,intra2);
-}
-
 int main(argc,argv)
      int argc;
      char *argv[];
 {
-  int size1, size2, permcount;
+  int permcount;
   char fprefix1[100];
   char fprefix2[100];
 
@@ -179,12 +167,12 @@ int main(argc,argv)
       intra1=dist(size1,size1,subset1,subset1,1);
       intra2=dist(size2,size2,subset2,subset2,1);
       inter=originalSum-intra1-intra2;
-      energies[i]=newenergy(inter,intra1,intra2);
+      energies[i]=energy(inter,intra1,intra2);
     }
 
 
   FILE* file;
-  sprintf(fname,"energies/energies%s-%s",fprefix1,fprefix1);
+  sprintf(fname,"energies/energies%s-%s",fprefix1,fprefix2);
 
   if( access( fname, F_OK ) == -1 )
     {
