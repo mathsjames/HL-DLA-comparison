@@ -3,6 +3,7 @@ make
 mv ClusterHL ../../
 cd ../../
 gcc -o ASizeCompacter src/other/asizecompacter.c
+g++ -o ZeroAppender src/HL/zeroappender.cpp
 g++ -O3 -o EDF src/other/edf.cpp
 g++ -O3 -o ClusterDLA src/DLA/clusterDLA.cpp
 g++ -o Imager src/imagedraw/imager.cpp

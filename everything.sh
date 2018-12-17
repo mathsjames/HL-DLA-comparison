@@ -14,15 +14,20 @@
 ./runDLA.sh 1 16010 10 0
 ./runDLA.sh 1 5010 10 1
 
+# append zero points to the HL Clusters
+./runZA.sh 11 3010 P2HLN100000S
+./runZA.sh 11 510 P1EXACTN100000S
+./runZA.sh 11 510 P2MCN100000S
+
 # generate empirical density functions for distance distribution
 ./runEDF.sh 11 3010 6 P2HLN100000S
-./runEDF.sh 11 510 1 P2EXACTN100000S
+./runEDF.sh 11 510 1 P1EXACTN100000S
 ./runEDF.sh 11 510 1 P2MCN100000S
 ./runEDF.sh 11 16010 32 DLAMC0N
 ./runEDF.sh 11 5010 10 DLAMC1N
 
 # generate distance arrays
-fprefixes=(P2HLN100000S P2EXACTN100000S P2MCN100000S DLAMC0N DLAMC1N)
+fprefixes=(P2HLN100000S P1EXACTN100000S P2MCN100000S DLAMC0N DLAMC1N)
 sizes=(3000 500 500 16000 5000)
 for i in {0..4}
 do
