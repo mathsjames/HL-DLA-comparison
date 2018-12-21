@@ -1,5 +1,6 @@
 fprefix=$4
 i=1
+top=$(($1-1))
 while [ "$i" -le "$3" ]; do
   bottom=$(($top+1))
   top=$(($1+(($2-$1)*$i)/$3))

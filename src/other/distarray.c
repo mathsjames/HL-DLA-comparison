@@ -79,6 +79,7 @@ int main(argc,argv)
 
     case 'l':
       sscanf(argv[++i],"%lf",&lowerLimit);
+      break;
 
     case 'p':
       sscanf(argv[++i],"%s",fprefix1);
@@ -110,7 +111,7 @@ int main(argc,argv)
   FILE* file;
 
   for ( loadcount=1;loadcount<=size1;loadcount++) {
-    sprintf(fname,"%s%d",fprefix1,loadcount);
+    sprintf(fname,"edf/edf%s%d",fprefix1,loadcount+10);
     if (file=fopen(fname,"r")) {
       fread(data1+pointsused*(loadcount-1),sizeof(double),pointsused,file);
       fclose(file);
@@ -119,7 +120,6 @@ int main(argc,argv)
       return 1;
     }
   }
-
 
   if (reflexive) {
     for (i=0;i<size1;i++) {
@@ -133,7 +133,7 @@ int main(argc,argv)
     }
   } else {
     for ( loadcount=1;loadcount<=size2;loadcount++) {
-      sprintf(fname,"%s%d",fprefix2,loadcount);
+      sprintf(fname,"edf/edf%s%d",fprefix2,loadcount+10);
       if (file=fopen(fname,"r")) {
 	fread(data2+pointsused*(loadcount-1),sizeof(double),pointsused,file);
 	fclose(file);
@@ -148,11 +148,19 @@ int main(argc,argv)
       }
     }
   }
-  sprintf(fname,"dists/dists%s-%s",fprefix1,fprefix2);
+  sprintf(fname,"distarray/dists%s-%s",fprefix1,fprefix2);
   if (file=fopen(fname,"w")) {
-    fwrite(dists,sizeof(double),size1*size2,file);
+    int count = fwrite(dists,sizeof(double),size1*size2,file);
     fclose(file);
+    if (count!=size1*size2)
+      {
+	printf("Tried to write %s and managed to write %d",fname,count);
+      }
   }
+  else
+    {
+      printf("Failed to open %s\n",fname);
+    }
 
   free(data1);
   free(data2);
