@@ -10,3 +10,7 @@ g++ -o Imager src/imagedraw/imager.cpp
 gcc -o DistArray src/other/distarray.c -lm
 gcc -O3 -o Energies src/other/energies.c
 gcc -o Summarize src/other/summarize.c
+cd fastDLA/
+./compile
+mv fastDLA ../FastDLA
+cd ..
