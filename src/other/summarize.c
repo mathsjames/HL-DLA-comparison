@@ -22,18 +22,19 @@ double mean(double energies[100000])
 
 int main()
 {
-  char* fprefixes[5];
+  char* fprefixes[6];
   fprefixes[0]="P2HLN100000S";
   fprefixes[1]="P1EXACTN100000S";
   fprefixes[2]="P2MCN100000S";
   fprefixes[3]="DLAMC0N";
   fprefixes[4]="DLAMC1N";
+  fprefixes[5]="FDLA";
   char filename[100];
   double energies[100000];
   FILE* fp;
-  for (int i=0;i<5;i++)
+  for (int i=0;i<6;i++)
     {
-      for (int j=i+1;j<5;j++)
+      for (int j=i+1;j<6;j++)
 	{
 	  sprintf(filename,"energies/energies%s-%s",fprefixes[i],fprefixes[j]);
 	  if (fp=fopen(filename,"r"))

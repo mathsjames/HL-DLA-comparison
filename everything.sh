@@ -46,3 +46,19 @@ do
 	time nohup nice -19 ./Energies -p ${fprefixes[i]} -q ${fprefixes[j]} -1 ${sizes[i]} -2 ${sizes[j]} -c 99999 &
     done
 done
+
+# generate empirical distribution functions for much larger DLA clusters
+./runFDLA.sh 11 3010 30
+
+# generate dist arrays involving larger clusters
+./runDA.sh FDLA FDLA 3000 3000 1
+for (( i=0; i<5; i++ ))
+do
+    ./runDA.sh ${fprefixes[i]} FDLA ${sizes[i]} 3000 0
+done
+
+# Find energies involving larger Clusters
+for (( i=0; i<5; i++ ))
+do
+	time nohup nice -19 ./Energies -p ${fprefixes[i]} -q FDLA -1 ${sizes[i]} -2 3000 -c 99999 &
+done
