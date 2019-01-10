@@ -48,7 +48,7 @@ do
 done
 
 # generate empirical distribution functions for much larger DLA clusters
-./runFDLA.sh 11 3010 30
+./runFDLA.sh 11 3010 75
 
 # generate dist arrays involving larger clusters
 ./runDA.sh FDLA FDLA 3000 3000 1
