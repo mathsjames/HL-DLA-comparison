@@ -47,18 +47,58 @@ do
     done
 done
 
-# generate empirical distribution functions for much larger DLA clusters
+# generate empirical distribution functions for much larger DLA clusters and noise reduce DLA clusters
 ./runFDLA.sh 11 3010 75
+./runNRDLA.sh 11 5010 3 10000 0.03
+./runNRDLA.sh 11 3010 20 10000000 0.03
 
-# generate dist arrays involving larger clusters
-./runDA.sh FDLA FDLA 3000 3000 1
+# generate dist arrays involving extra clusters
+fprefixes2=(FDLA NR4 NR7)
+sizes2=(3000 5000 3000)
+for (( i=0; i<3; i++ ))
+do
+    ./runDA.sh ${fprefixes2[i]} ${fprefixes2[i]} ${sizes2[i]} ${sizes2[i]} 1
+    for (( j=$(( $i + 1 )); j<3; j++ ))
+    do
+	./runDA.sh ${fprefixes2[i]} ${fprefixes2[j]} ${sizes2[i]} ${sizes2[j]} 0
+    done
+done
+
 for (( i=0; i<5; i++ ))
 do
     ./runDA.sh ${fprefixes[i]} FDLA ${sizes[i]} 3000 0
 done
 
-# Find energies involving larger Clusters
+for (( i=0; i<5; i++ ))
+do
+    ./runDA.sh ${fprefixes[i]} NR4 ${sizes[i]} 5000 0
+done
+
+for (( i=0; i<5; i++ ))
+do
+    ./runDA.sh ${fprefixes[i]} NR7 ${sizes[i]} 3000 0
+done
+
+# Find energies involving extra Clusters
+for (( i=0; i<3; i++ ))
+do
+    for (( j=$(( $i + 1 )); j<3; j++ ))
+    do
+	time nohup nice -19 ./Energies -p ${fprefixes2[i]} -q ${fprefixes2[j]} -1 ${sizes2[i]} -2 ${sizes2[j]} -c 99999 &
+    done
+done
+
 for (( i=0; i<5; i++ ))
 do
 	time nohup nice -19 ./Energies -p ${fprefixes[i]} -q FDLA -1 ${sizes[i]} -2 3000 -c 99999 &
+done
+
+for (( i=0; i<5; i++ ))
+do
+	time nohup nice -19 ./Energies -p ${fprefixes[i]} -q NR4 -1 ${sizes[i]} -2 5000 -c 99999 &
+done
+
+for (( i=0; i<5; i++ ))
+do
+	time nohup nice -19 ./Energies -p ${fprefixes[i]} -q NR7 -1 ${sizes[i]} -2 3000 -c 99999 &
 done
