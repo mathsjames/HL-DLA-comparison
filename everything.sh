@@ -53,7 +53,7 @@ done
 ./runNRDLA.sh 11 3010 20 10000000 0.03
 
 # generate dist arrays involving extra clusters
-fprefixes2=(FDLA NR4 NR7)
+fprefixes2=(FDLA NR5 NR7)
 sizes2=(3000 5000 3000)
 for (( i=0; i<3; i++ ))
 do
@@ -66,17 +66,10 @@ done
 
 for (( i=0; i<5; i++ ))
 do
-    ./runDA.sh ${fprefixes[i]} FDLA ${sizes[i]} 3000 0
-done
-
-for (( i=0; i<5; i++ ))
-do
-    ./runDA.sh ${fprefixes[i]} NR4 ${sizes[i]} 5000 0
-done
-
-for (( i=0; i<5; i++ ))
-do
-    ./runDA.sh ${fprefixes[i]} NR7 ${sizes[i]} 3000 0
+    for (( j=0; j<3; j++ ))
+    do
+    ./runDA.sh ${fprefixes[i]} ${fprefixes2[j]} ${sizes[i]} ${sizes2[j]} 0
+    done
 done
 
 # Find energies involving extra Clusters
@@ -90,15 +83,8 @@ done
 
 for (( i=0; i<5; i++ ))
 do
-	time nohup nice -19 ./Energies -p ${fprefixes[i]} -q FDLA -1 ${sizes[i]} -2 3000 -c 99999 &
-done
-
-for (( i=0; i<5; i++ ))
-do
-	time nohup nice -19 ./Energies -p ${fprefixes[i]} -q NR4 -1 ${sizes[i]} -2 5000 -c 99999 &
-done
-
-for (( i=0; i<5; i++ ))
-do
-	time nohup nice -19 ./Energies -p ${fprefixes[i]} -q NR7 -1 ${sizes[i]} -2 3000 -c 99999 &
+    for (( j=0; j<3; j++ ))
+    do
+	time nohup nice -19 ./Energies -p ${fprefixes[i]} -q ${fprefixes2[j]} -1 ${sizes[i]} -2 ${sizes2[j]} -c 99999 &
+    done
 done

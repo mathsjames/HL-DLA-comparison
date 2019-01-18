@@ -1,6 +1,6 @@
 i=$1
-log=4
-if [ $3 -gt 100000 ]
+log=5
+if [ $3 -gt 1000000 ]
 then
    log=7
 fi
