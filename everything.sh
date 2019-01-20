@@ -27,38 +27,29 @@
 ./runEDF.sh 11 5010 10 DLAMC1N
 
 # generate distance arrays
-fprefixes=(P2HLN100000S P1EXACTN100000S P2MCN100000S DLAMC0N DLAMC1N)
-sizes=(3000 500 500 16000 5000)
-for (( i=0; i<5; i++ ))
-do
-    ./runDA.sh ${fprefixes[i]} ${fprefixes[i]} ${sizes[i]} ${sizes[i]} 1
-    for (( j=$(( $i + 1 )); j<5; j++ ))
-    do
-	./runDA.sh ${fprefixes[i]} ${fprefixes[j]} ${sizes[i]} ${sizes[j]} 0
-    done
-done
+./da.sh
 
 # Find energies of permutations
-for (( i=0; i<5; i++ ))
-do
-    for (( j=$(( $i + 1 )); j<5; j++ ))
-    do
-	time nohup nice -19 ./Energies -p ${fprefixes[i]} -q ${fprefixes[j]} -1 ${sizes[i]} -2 ${sizes[j]} -c 99999 &
-    done
-done
+./en.sh
 
-# generate empirical distribution functions for much larger DLA clusters
+# generate empirical distribution functions for much larger DLA clusters and noise reduce DLA clusters
 ./runFDLA.sh 11 3010 75
+./runNRDLA.sh 11 5010 3 100000 0.03
+./runNRDLA.sh 11 3010 20 10000000 0.03
 
-# generate dist arrays involving larger clusters
-./runDA.sh FDLA FDLA 3000 3000 1
-for (( i=0; i<5; i++ ))
-do
-    ./runDA.sh ${fprefixes[i]} FDLA ${sizes[i]} 3000 0
-done
+# generate dist arrays involving extra clusters
+./dainter.sh
+./daintra.sh
+./dan.sh 0
+./dan.sh 1
+./dan.sh 2
+./dan.sh 3
+./dan.sh 4
 
-# Find energies involving larger Clusters
-for (( i=0; i<5; i++ ))
-do
-	time nohup nice -19 ./Energies -p ${fprefixes[i]} -q FDLA -1 ${sizes[i]} -2 3000 -c 99999 &
-done
+# Find energies involving extra Clusters
+./eninter.sh
+./enn.sh 0
+./enn.sh 1
+./enn.sh 2
+./enn.sh 3
+./enn.sh 4
