@@ -2,15 +2,15 @@
 ./getcode.sh
 
 # generate actual size data for circular particle for later monte carlo using first 10 seeds
-./runHL.sh 1 10 10 1 2 1
+./runHL.sh 1 10 10 1 2 1 100000
 # take only 1 in every 10 samples and order them
 ./ASizeCompacter
 
 
 # simulate the clusters
-./runHL.sh 1 3010 100 1 2 0
-./runHL.sh 1 510 100 2 1 0
-./runHL.sh 1 510 100 3 2 0
+./runHL.sh 1 3010 100 1 2 0 100000
+./runHL.sh 1 510 100 2 1 0 100000
+./runHL.sh 1 510 100 3 2 0 100000
 ./runDLA.sh 1 16010 10 0
 ./runDLA.sh 1 5010 10 1
 
@@ -53,3 +53,19 @@
 ./enn.sh 2
 ./enn.sh 3
 ./enn.sh 4
+
+#computations for smaller HL clusters
+./runHL.sh 11 3010 4 1 2 0 10000
+
+./runZA.sh 11 3010 P2HLN10000S
+
+./runEDF.sh 11 3010 4 P2HLN10000S
+
+./daHL4.sh
+./runDA.sh DLAMC0N P2HLN10000S 16000 3000 0
+
+./enHL4.sh
+nohup nice -19 ./Energies -p DLAMC0N -q P2HLN10000S -1 16000 -2 3000 -c 99999 &
+
+#Print results to terminal
+./Summarize

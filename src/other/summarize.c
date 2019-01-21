@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#define models 8
+#define models 9
 
 double pvalue(double energies[100000])
 {
@@ -22,6 +22,18 @@ double mean(double energies[100000])
   return tot/99999;
 }
 
+double maxpermenergy(double* energies)
+{
+  double max=0;
+  for (int i=1; i<100000; i++)
+    {
+      if (energies[i]>max)
+	{
+	  max=energies[i];
+	}
+    }
+  return max;
+}
 int main()
 {
   char* fprefixes[models];
@@ -33,11 +45,12 @@ int main()
   fprefixes[5]="FDLA";
   fprefixes[6]="NR5";
   fprefixes[7]="NR7";
-  double sizes[models]={3000,500,500,16000,5000,3000,5000,3000};
+  fprefixes[8]="P2HLN10000S";
+  double sizes[models]={3000,500,500,16000,5000,3000,5000,3000,3000};
   char filename[100];
   double energies[100000];
   FILE* fp;
-  double output[3][models][models];
+  double output[4][models][models];
   for (int i=0;i<models;i++)
     {
       for (int j=i+1;j<models;j++)
@@ -49,8 +62,9 @@ int main()
 	      output[0][i][j]=energies[0];
 	      output[1][i][j]=pvalue(energies);
 	      output[2][i][j]=energies[0]*(sizes[i]+sizes[j])/(sizes[i]*sizes[j]);
+	      output[3][i][j]=maxpermenergy(energies);
 	      printf("Report for %s-%s\nenergy is %lf\np-value is %lf\ndistance is %lf\navg permutation energy is %lf\n\n",fprefixes[i],fprefixes[j],output[0][i][j],output[1][i][j],output[2][i][j],mean(energies));
-	      for (int o=0;o<3;o++) {
+	      for (int o=0;o<4;o++) {
 		output[o][j][i]=output[o][i][j];
 	      }
 	    }
@@ -60,12 +74,13 @@ int main()
 	    }
 	}
     }
-  int indicies[models]={3,4,0,1,2,5,6,7};
-  char* outputs[3];
+  int indicies[models]={3,4,0,1,2,5,6,7,8};
+  char* outputs[4];
   outputs[0]="Energies";
   outputs[1]="p-values";
   outputs[2]="differences";
-  for (int o=0;o<3;o++) {
+  outputs[3]="max perm energy";
+  for (int o=0;o<4;o++) {
     printf("%s\n",outputs[o]);
     for (int i=0;i<models;i++)
       {
@@ -88,4 +103,4 @@ int main()
   }
   return 0;
 }
-  
+
