@@ -80,10 +80,27 @@ int main()
   outputs[1]="p-values";
   outputs[2]="differences";
   outputs[3]="max perm energy";
-  for (int o=0;o<4;o++) {
-    printf("%s\n",outputs[o]);
+  for (int o=0;o<4;o++)
+    {
+    printf("%s\n          ",outputs[o]);
+    char pref[7];
+    pref[6]='\0';
+    for(int j=0;j<models;j++)
+      {
+        for (int c=0;c<6;c++)
+	  {
+	    pref[c]=fprefixes[indicies[j]][c];
+	  }
+	printf("%-10s",pref);
+      }
+    printf("\n");
     for (int i=0;i<models;i++)
       {
+	for (int c=0;c<6;c++)
+	  {
+	    pref[c]=fprefixes[indicies[i]][c];
+	  }
+	printf("%-10s",pref);
 	int k=indicies[i];
 	for (int j=0;j<models;j++)
 	  {
@@ -94,7 +111,7 @@ int main()
 	      }
 	    else
 	      {
-		printf("          ");
+		printf("----------");
 	      }
 	  }
 	printf("\n");
