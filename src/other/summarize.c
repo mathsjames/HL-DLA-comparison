@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 
 #define models 9
 
@@ -61,7 +62,7 @@ int main()
 	      fread(energies,sizeof(double),100000,fp);
 	      output[0][i][j]=energies[0];
 	      output[1][i][j]=pvalue(energies);
-	      output[2][i][j]=energies[0]*(sizes[i]+sizes[j])/(sizes[i]*sizes[j]);
+	      output[2][i][j]=sqrt(energies[0]*(sizes[i]+sizes[j])/(sizes[i]*sizes[j]));
 	      output[3][i][j]=maxpermenergy(energies);
 	      printf("Report for %s-%s\nenergy is %lf\np-value is %lf\ndistance is %lf\navg permutation energy is %lf\n\n",fprefixes[i],fprefixes[j],output[0][i][j],output[1][i][j],output[2][i][j],mean(energies));
 	      for (int o=0;o<4;o++) {
@@ -78,46 +79,46 @@ int main()
   char* outputs[4];
   outputs[0]="Energies";
   outputs[1]="p-values";
-  outputs[2]="differences";
+  outputs[2]="distances";
   outputs[3]="max perm energy";
   for (int o=0;o<4;o++)
     {
-    printf("%s\n          ",outputs[o]);
-    char pref[7];
-    pref[6]='\0';
-    for(int j=0;j<models;j++)
-      {
-        for (int c=0;c<6;c++)
-	  {
-	    pref[c]=fprefixes[indicies[j]][c];
-	  }
-	printf("%-10s",pref);
-      }
-    printf("\n");
-    for (int i=0;i<models;i++)
-      {
-	for (int c=0;c<6;c++)
-	  {
-	    pref[c]=fprefixes[indicies[i]][c];
-	  }
-	printf("%-10s",pref);
-	int k=indicies[i];
-	for (int j=0;j<models;j++)
-	  {
-	    int l=indicies[j];
-	    if (i<j)
-	      {
-		printf("%-10lf",output[o][k][l]);
-	      }
-	    else
-	      {
-		printf("----------");
-	      }
-	  }
-	printf("\n");
-      }
-    printf("\n");
-  }
+      printf("%s\n          ",outputs[o]);
+      char pref[7];
+      pref[6]='\0';
+      for(int j=0;j<models;j++)
+	{
+	  for (int c=0;c<6;c++)
+	    {
+	      pref[c]=fprefixes[indicies[j]][c];
+	    }
+	  printf("%-10s",pref);
+	}
+      printf("\n");
+      for (int i=0;i<models;i++)
+	{
+	  for (int c=0;c<6;c++)
+	    {
+	      pref[c]=fprefixes[indicies[i]][c];
+	    }
+	  printf("%-10s",pref);
+	  int k=indicies[i];
+	  for (int j=0;j<models;j++)
+	    {
+	      int l=indicies[j];
+	      if (i<j)
+		{
+		  printf("%-10lf",output[o][k][l]);
+		}
+	      else
+		{
+		  printf("----------");
+		}
+	    }
+	  printf("\n");
+	}
+      printf("\n");
+    }
   return 0;
 }
 
