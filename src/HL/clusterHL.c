@@ -15,7 +15,7 @@
 #define PI 3.14159265358979
 #define ALPHA 2.00
 #define SPIKE 1.41421
-#define MAXAGG 100000
+#define MAXAGG 1000000
 #define NGEN 500
 #define ASIZECOUNT 100000
 

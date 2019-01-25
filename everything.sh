@@ -54,18 +54,25 @@
 ./enn.sh 3
 ./enn.sh 4
 
-#computations for smaller HL clusters
+#computations for other HL clusters
 ./runHL.sh 11 3010 4 1 2 0 10000
+./runHL.sh 11 210 200 1 2 0 1000000
 
 ./runZA.sh 11 3010 P2HLN10000S
+./runZA.sh 11 210 P2HLN1000000S
 
 ./runEDF.sh 11 3010 4 P2HLN10000S 10000
+./runEDF.sh 11 210 4 P2HLN1000000S 10000
 
 ./daHL4.sh
 ./runDA.sh DLAMC0N P2HLN10000S 16000 3000 0
+./daHL6.sh
+./runDA.sh DLAMC0N P2HLN1000000S 16000 200 0
 
 ./enHL4.sh
 nohup nice -19 ./Energies -p DLAMC0N -q P2HLN10000S -1 16000 -2 3000 -c 99999 &
+./enHL6.sh
+nohup nice -19 ./Energies -p DLAMC0N -q P2HLN1000000S -1 16000 -2 200 -c 99999 &
 
 #Print results to terminal
 ./Summarize
