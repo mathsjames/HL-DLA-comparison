@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#define models 9
+#define models 10
 
 double pvalue(double energies[100000])
 {
@@ -47,7 +47,8 @@ int main()
   fprefixes[6]="NR5";
   fprefixes[7]="NR7";
   fprefixes[8]="P2HLN10000S";
-  double sizes[models]={3000,500,500,16000,5000,3000,5000,3000,3000};
+  fprefixes[9]="P2HLN1000000S";
+  double sizes[models]={3000,500,500,16000,5000,3000,5000,3000,3000,200};
   char filename[100];
   double energies[100000];
   FILE* fp;
@@ -75,7 +76,7 @@ int main()
 	    }
 	}
     }
-  int indicies[models]={3,4,0,1,2,5,6,7,8};
+  int indicies[models]={3,4,0,1,2,5,6,7,8,9};
   char* outputs[4];
   outputs[0]="Energies";
   outputs[1]="p-values";
