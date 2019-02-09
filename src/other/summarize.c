@@ -55,6 +55,10 @@ int main()
   double output[4][models][models];
   for (int i=0;i<models;i++)
     {
+      for (int o=0;o<4;o++)
+	{
+	  output[o][i][i]=0;
+	}
       for (int j=i+1;j<models;j++)
 	{
 	  sprintf(filename,"energies/energies%s-%s",fprefixes[i],fprefixes[j]);
@@ -69,6 +73,7 @@ int main()
 	      for (int o=0;o<4;o++) {
 		output[o][j][i]=output[o][i][j];
 	      }
+	      fclose(fp);
 	    }
 	  else
 	    {
@@ -76,6 +81,10 @@ int main()
 	    }
 	}
     }
+  sprintf(filename,"results");
+  fp=fopen(filename,"w");
+  fwrite(output,sizeof(double),4*models*models,fp);
+  fclose(fp);
   int indicies[models]={3,4,0,1,2,5,6,7,8,9};
   char* outputs[4];
   outputs[0]="Energies";
@@ -113,7 +122,7 @@ int main()
 		}
 	      else
 		{
-		  printf("----------");
+		  printf("--------  ");
 		}
 	    }
 	  printf("\n");
